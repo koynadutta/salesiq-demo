@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Bash(python *)",
+      "Bash(curl -s -c /tmp/jar.txt -X POST http://localhost:5000/login -H 'Content-Type: application/json' -d '{\"username\":\"demo\",\"password\":\"demo123\"}')",
+      "Bash(curl -s -b /tmp/jar.txt http://localhost:5000/api/dashboard)",
+      "Bash(curl -s -b /tmp/jar.txt http://localhost:5000/api/forecast)",
+      "Bash(curl -s -b /tmp/jar.txt http://localhost:5000/api/products)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5000/dashboard)",
+      "Bash(curl -s -o /dev/null -w \"%{redirect_url}\" http://localhost:5000/dashboard)",
+      "Bash(kill %1)",
+      "Bash(taskkill /F /IM python.exe)",
+      "PowerShell(Stop-Process *)"
+    ]
+  }
+}
