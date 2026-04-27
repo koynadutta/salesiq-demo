@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, make_response
+from flask_mail import Mail, Message
 import sqlite3
 import os
 import random
@@ -7,6 +8,16 @@ from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "salesiq-demo-secret-2024-xyz-secure")
+
+# ── Flask-Mail ────────────────────────────────────────────────────────────────
+app.config['MAIL_SERVER']         = 'smtp.gmail.com'
+app.config['MAIL_PORT']           = 587
+app.config['MAIL_USE_TLS']        = True
+app.config['MAIL_USE_SSL']        = False
+app.config['MAIL_USERNAME']       = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD']       = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
+mail = Mail(app)
 
 DB_PATH = os.environ.get("DB_PATH", "salesiq.db")
 
@@ -89,8 +100,7 @@ def _seed(cursor):
 def login_required(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
-        if "user" not in session:
-            return redirect("/login")
+        session["user"] = "demo"
         return f(*args, **kwargs)
     return wrapped
 
@@ -146,7 +156,7 @@ def _product_daily(product_name):
 
 @app.route("/")
 def index():
-    return redirect("/login") if "user" not in session else redirect("/dashboard")
+    return render_template("landing.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -242,7 +252,6 @@ def api_dashboard():
     actual_rows = c.fetchall()
     conn.close()
 
-    # Chart data
     labels, actual_vals, forecast_vals = [], [], []
     for row in actual_rows:
         labels.append(row["date"])
@@ -407,11 +416,53 @@ def download_template():
     return resp
 
 
+@app.route('/contact', methods=['POST'])
+def contact():
+    name    = request.form.get('name',    '').strip()
+    email   = request.form.get('email',   '').strip()
+    company = request.form.get('company', '').strip()
+    message = request.form.get('message', '').strip()
+
+    if not name or not email or not message:
+        return jsonify({'success': False, 'error': 'Please fill in all required fields.'})
+
+    # Always persist the lead to the database
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO upgrade_requests (name,email,company,message,created_at) VALUES (?,?,?,?,?)",
+        (name, email, company, message, datetime.now().isoformat()),
+    )
+    conn.commit()
+    conn.close()
+
+    # Send email only if credentials are configured
+    if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
+        try:
+            msg = Message(
+                subject=f'New SalesIQ Pro Inquiry — {name}',
+                sender=app.config['MAIL_USERNAME'],
+                recipients=['koynaduttaxox05@gmail.com'],
+                body=(
+                    f"New SalesIQ Pro Inquiry\n{'='*40}\n\n"
+                    f"Name:    {name}\n"
+                    f"Email:   {email}\n"
+                    f"Company: {company}\n\n"
+                    f"Message:\n{message or '(none provided)'}\n\n"
+                    f"{'='*40}\nSent from SalesIQ contact form\n"
+                ),
+            )
+            mail.send(msg)
+        except Exception as e:
+            print(f"Email error: {str(e)}")
+
+    return jsonify({'success': True})
+
+
 @app.route("/api/upgrade", methods=["POST"])
 def api_upgrade():
     data = request.get_json(silent=True) or {}
-    name = (data.get("name") or "").strip()
-    email = (data.get("email") or "").strip()
+    name    = (data.get("name")    or "").strip()
+    email   = (data.get("email")   or "").strip()
     company = (data.get("company") or "").strip()
     message = (data.get("message") or "").strip()
 
@@ -425,6 +476,28 @@ def api_upgrade():
     )
     conn.commit()
     conn.close()
+
+    try:
+        if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
+            msg = Message(
+                subject=f"New SalesIQ Pro Inquiry — {name}",
+                sender=app.config['MAIL_USERNAME'],
+                recipients=['koynaduttaxox05@gmail.com'],
+            )
+            msg.body = (
+                f"New SalesIQ Pro Inquiry\n"
+                f"{'='*40}\n\n"
+                f"Name:    {name}\n"
+                f"Email:   {email}\n"
+                f"Company: {company}\n\n"
+                f"Message:\n{message or '(none provided)'}\n\n"
+                f"{'='*40}\n"
+                f"Submitted via SalesIQ Demo\n"
+            )
+            mail.send(msg)
+    except Exception:
+        pass
+
     return jsonify({"ok": True})
 
 

@@ -4,723 +4,558 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SalesIQ — AI Sales Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-/* ── Reset & Variables ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-  --bg:        #0f172a;
-  --surface:   #1e293b;
-  --surface2:  #263244;
-  --border:    #334155;
-  --text:      #f1f5f9;
-  --muted:     #94a3b8;
-  --accent:    #6366f1;
-  --accent-h:  #4f46e5;
-  --blue:      #3b82f6;
-  --blue-h:    #2563eb;
-  --green:     #10b981;
-  --red:       #ef4444;
-  --yellow:    #f59e0b;
-  --sidebar-w: 260px;
-  --banner-h:  48px;
-  --radius:    10px;
+  --bg-primary: #060810;
+  --bg-secondary: #0d1117;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --bg-card-hover: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --text-primary: #f8fafc;
+  --text-secondary: #64748b;
+  --text-muted: #334155;
+  --purple: #7c3aed;
+  --purple-light: #8b5cf6;
+  --purple-glow: rgba(124, 58, 237, 0.15);
+  --pink: #db2777;
+  --pink-light: #ec4899;
+  --gradient: linear-gradient(135deg, #7c3aed, #db2777);
+  --gradient-subtle: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(219,39,119,0.1));
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 72px;
 }
+
 html, body { height: 100%; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
+  overflow-x: hidden;
 }
 a { color: inherit; text-decoration: none; }
 button { cursor: pointer; border: none; outline: none; font-family: inherit; }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.35); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.55); }
 
-/* ══════════════ LOGIN PAGE ══════════════ */
-#login-wrap {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(ellipse at 50% 0%, #1e2d5a 0%, var(--bg) 70%);
-}
-.login-card {
-  width: 420px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 48px 40px 40px;
-  box-shadow: 0 25px 50px rgba(0,0,0,.5);
-}
-.login-logo {
-  text-align: center;
-  margin-bottom: 32px;
-}
-.login-logo .logo-icon {
-  width: 56px; height: 56px;
-  background: linear-gradient(135deg, var(--accent), var(--blue));
-  border-radius: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  margin-bottom: 14px;
-}
-.login-logo h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
-.login-logo p  { color: var(--muted); font-size: 13px; margin-top: 4px; }
-.login-demo-badge {
-  background: rgba(99,102,241,.15);
-  border: 1px solid rgba(99,102,241,.3);
-  color: #a5b4fc;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 12.5px;
-  margin-bottom: 24px;
-  text-align: center;
-}
-.login-demo-badge strong { color: #c7d2fe; }
-.form-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-.form-input {
-  width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 14px;
-  padding: 10px 14px;
-  transition: border-color .2s;
-}
-.form-input:focus { outline: none; border-color: var(--accent); }
-.form-group { margin-bottom: 18px; }
-.btn-primary {
-  width: 100%;
-  background: linear-gradient(135deg, var(--accent), var(--blue));
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  padding: 12px;
-  border-radius: 8px;
-  margin-top: 8px;
-  transition: opacity .2s, transform .1s;
-}
-.btn-primary:hover { opacity: .92; transform: translateY(-1px); }
-.btn-primary:active { transform: translateY(0); }
-.login-error {
-  background: rgba(239,68,68,.12);
-  border: 1px solid rgba(239,68,68,.3);
-  color: #fca5a5;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 13px;
-  margin-top: 14px;
-  display: none;
-  text-align: center;
-}
-
-/* ══════════════ UPGRADE BANNER ══════════════ */
-#upgrade-banner {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: var(--banner-h);
-  background: linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  font-size: 13.5px;
-  font-weight: 500;
-  z-index: 100;
-  letter-spacing: .01em;
-}
-.banner-upgrade-btn {
-  background: rgba(255,255,255,.18);
-  border: 1px solid rgba(255,255,255,.35);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 5px 14px;
-  border-radius: 6px;
-  transition: background .15s;
-}
-.banner-upgrade-btn:hover { background: rgba(255,255,255,.28); }
-
-/* ══════════════ APP LAYOUT ══════════════ */
-#app-wrap {
-  display: flex;
-  height: 100vh;
-  padding-top: var(--banner-h);
-}
-
-/* ── Sidebar ── */
-#sidebar {
-  width: var(--sidebar-w);
-  min-width: var(--sidebar-w);
-  background: var(--bg);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  position: fixed;
-  top: var(--banner-h);
-  bottom: 0;
-  left: 0;
-  z-index: 50;
-}
-.sidebar-brand {
-  padding: 24px 20px 20px;
-  border-bottom: 1px solid var(--border);
-}
-.sidebar-brand .brand-logo {
-  width: 38px; height: 38px;
-  background: linear-gradient(135deg, var(--accent), var(--blue));
-  border-radius: 9px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-.sidebar-brand h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
-.sidebar-brand span { font-size: 11.5px; color: var(--muted); letter-spacing: .03em; }
-
-.sidebar-section {
-  padding: 10px 12px;
-  flex: 1;
-}
-.sidebar-section-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--muted);
-  padding: 12px 8px 6px;
-}
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--muted);
-  transition: background .15s, color .15s;
-  margin-bottom: 2px;
-  cursor: pointer;
-}
-.nav-link:hover { background: var(--surface); color: var(--text); }
-.nav-link.active { background: rgba(99,102,241,.15); color: #a5b4fc; font-weight: 600; }
-.nav-link .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-.nav-link .lock-badge {
-  margin-left: auto;
-  font-size: 12px;
-  opacity: .7;
-}
-.sidebar-footer {
-  padding: 12px;
-  border-top: 1px solid var(--border);
-}
-.nav-logout {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--muted);
-  transition: background .15s, color .15s;
-  cursor: pointer;
-}
-.nav-logout:hover { background: rgba(239,68,68,.1); color: #fca5a5; }
-
-/* ── Main content ── */
-#main {
-  flex: 1;
-  margin-left: var(--sidebar-w);
-  overflow-y: auto;
-  padding: 32px 36px;
-  min-height: 100%;
-}
-
-/* ══════════════ PAGES ══════════════ */
-.page { display: none; }
-.page.active { display: block; }
-
-.page-header { margin-bottom: 28px; }
-.page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
-.page-header p { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
-
-/* ── Stat Cards ── */
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 28px;
-}
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 22px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color .2s;
-}
-.stat-card:hover { border-color: var(--accent); }
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--blue));
-  border-radius: var(--radius) var(--radius) 0 0;
-}
-.stat-label {
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-.stat-value {
-  font-size: 26px;
-  font-weight: 800;
-  letter-spacing: -1px;
-  line-height: 1;
-}
-.stat-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-.stat-icon {
-  position: absolute;
-  top: 18px; right: 18px;
-  font-size: 22px;
-  opacity: .35;
-}
-
-/* ── Card ── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 24px;
-}
-.card-title {
-  font-size: 15px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card-title .badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background: rgba(16,185,129,.15);
-  color: var(--green);
-  border: 1px solid rgba(16,185,129,.25);
-}
-.badge-warning {
-  background: rgba(245,158,11,.12) !important;
-  color: var(--yellow) !important;
-  border-color: rgba(245,158,11,.25) !important;
-}
-
-.chart-wrap { position: relative; height: 280px; }
-
-/* ── Tables ── */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-thead th {
-  text-align: left;
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--muted);
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-tbody td {
-  padding: 13px 14px;
-  border-bottom: 1px solid rgba(51,65,85,.5);
-  font-size: 13.5px;
-  vertical-align: middle;
-}
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: rgba(255,255,255,.025); }
-.td-product { font-weight: 600; }
-.td-num { font-variant-numeric: tabular-nums; }
-.trend-up   { color: var(--green); font-weight: 600; }
-.trend-down { color: var(--red);   font-weight: 600; }
-.trend-flat { color: var(--muted); font-weight: 500; }
-
-/* Locked table cell */
-.td-locked {
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-.td-locked .lock-icon { font-size: 12px; }
-.td-locked span { font-size: 12px; font-style: italic; }
-
-/* ── Info box ── */
-.info-box {
-  background: rgba(59,130,246,.1);
-  border: 1px solid rgba(59,130,246,.25);
-  border-radius: 8px;
-  padding: 14px 18px;
-  color: #93c5fd;
-  font-size: 13px;
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.info-box .info-icon { font-size: 16px; flex-shrink: 0; }
-.info-box a {
-  color: var(--blue);
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-}
-.warn-box {
-  background: rgba(245,158,11,.1);
-  border: 1px solid rgba(245,158,11,.25);
-  border-radius: 8px;
-  padding: 12px 16px;
-  color: #fcd34d;
-  font-size: 13px;
-  margin-bottom: 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* ══════════════ LOCK SCREENS ══════════════ */
-.lock-screen {
-  text-align: center;
-  padding: 80px 40px;
-  max-width: 520px;
-  margin: 0 auto;
-}
-.lock-icon-wrap {
-  width: 90px; height: 90px;
-  background: rgba(99,102,241,.1);
-  border: 2px solid rgba(99,102,241,.25);
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  margin-bottom: 28px;
-}
-.lock-screen h2 {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -.5px;
-  margin-bottom: 8px;
-}
-.lock-screen .lock-subtitle {
-  display: inline-block;
-  background: rgba(99,102,241,.15);
-  border: 1px solid rgba(99,102,241,.3);
-  color: #a5b4fc;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-bottom: 20px;
-}
-.lock-screen p {
-  color: var(--muted);
-  font-size: 14.5px;
-  line-height: 1.7;
-  margin-bottom: 32px;
-}
-.btn-upgrade-big {
-  display: inline-block;
-  background: var(--blue);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-  padding: 14px 36px;
-  border-radius: 10px;
-  transition: background .15s, transform .1s;
-  cursor: pointer;
-}
-.btn-upgrade-big:hover { background: var(--blue-h); transform: translateY(-2px); }
-
-/* Integration preview placeholder */
-.integration-preview {
-  width: 100%;
-  max-width: 480px;
-  height: 200px;
-  background: var(--surface2);
-  border: 2px dashed var(--border);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 13px;
-  margin: 28px auto;
-}
-.integration-preview .prev-icon { font-size: 32px; opacity: .4; }
-.integration-preview strong { font-size: 14px; }
-
-/* ══════════════ UPLOAD PAGE ══════════════ */
-.upload-zone {
-  border: 2px dashed var(--border);
-  border-radius: 12px;
-  padding: 60px 40px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color .2s, background .2s;
-  background: rgba(255,255,255,.01);
-}
-.upload-zone:hover, .upload-zone.drag-over {
-  border-color: var(--accent);
-  background: rgba(99,102,241,.05);
-}
-.upload-icon { font-size: 44px; margin-bottom: 16px; opacity: .6; }
-.upload-zone h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-.upload-zone p { color: var(--muted); font-size: 13px; }
-.upload-zone input[type=file] { display: none; }
-.btn-outline {
-  display: inline-block;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 18px;
-  border-radius: 8px;
-  margin-top: 16px;
-  transition: border-color .15s, color .15s;
-  cursor: pointer;
-  background: transparent;
-  font-family: inherit;
-}
-.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-.upload-result {
-  display: none;
-  background: rgba(16,185,129,.1);
-  border: 1px solid rgba(16,185,129,.25);
-  border-radius: 10px;
-  padding: 20px 22px;
-  margin-top: 20px;
-  color: #6ee7b7;
-  font-size: 13.5px;
-}
-.upload-result.error {
-  background: rgba(239,68,68,.1);
-  border-color: rgba(239,68,68,.25);
-  color: #fca5a5;
-}
-.upload-result h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
-.upload-result p { margin-bottom: 5px; }
-
-.format-box {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 18px 20px;
-  margin-top: 20px;
-}
-.format-box h4 {
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-.format-code {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 14px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 12.5px;
-  color: #a5b4fc;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-.format-row { margin-bottom: 3px; }
-
-/* ══════════════ UPGRADE PAGE ══════════════ */
-.upgrade-hero {
-  text-align: center;
-  padding: 48px 24px 32px;
-  max-width: 640px;
-  margin: 0 auto;
-}
-.upgrade-hero h1 {
-  font-size: 34px;
-  font-weight: 900;
-  letter-spacing: -1px;
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, #fff, #a5b4fc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.upgrade-hero p {
-  color: var(--muted);
-  font-size: 15px;
-  line-height: 1.7;
-}
-.upgrade-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-.feature-list { list-style: none; }
-.feature-list li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
-.feature-list li:last-child { border-bottom: none; }
-.feat-check {
-  width: 24px; height: 24px;
-  background: rgba(16,185,129,.15);
-  border: 1px solid rgba(16,185,129,.3);
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--green);
-  font-size: 13px;
-  flex-shrink: 0;
-}
-.price-tag {
-  text-align: center;
-  padding: 20px 0 24px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 20px;
-}
-.price-tag .amount {
-  font-size: 44px;
-  font-weight: 900;
-  letter-spacing: -2px;
-  color: var(--text);
-}
-.price-tag .period { color: var(--muted); font-size: 15px; }
-.price-tag .price-note { font-size: 12px; color: var(--muted); margin-top: 6px; }
-
-.upgrade-form .form-input { margin-bottom: 0; }
-textarea.form-input {
-  resize: vertical;
-  min-height: 100px;
-  padding: 10px 14px;
-}
-.upgrade-form .btn-primary {
-  width: 100%;
-  padding: 14px;
-  font-size: 15px;
-  border-radius: 10px;
-}
-.form-success {
-  display: none;
-  background: rgba(16,185,129,.1);
-  border: 1px solid rgba(16,185,129,.25);
-  border-radius: 10px;
-  padding: 24px;
-  text-align: center;
-  color: #6ee7b7;
-}
-.form-success .s-icon { font-size: 40px; margin-bottom: 12px; }
-.form-success h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-.form-success p { font-size: 13.5px; opacity: .85; }
-
-/* ── Loading spinner ── */
-.spinner {
-  display: inline-block;
-  width: 18px; height: 18px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 60px 20px;
-  color: var(--muted);
-  font-size: 14px;
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
 }
 
-/* ── Utility ── */
-.d-none { display: none !important; }
-.mt-0 { margin-top: 0 !important; }
-.text-green { color: var(--green); }
-.text-red   { color: var(--red); }
-.text-muted { color: var(--muted); }
-.text-right { text-align: right; }
+/* ═══════════════════════════════════
+   LOGIN
+═══════════════════════════════════ */
+#login-wrap {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-primary);
+  position: relative; overflow: hidden;
+}
+#login-wrap::before {
+  content: '';
+  position: absolute; width: 700px; height: 700px;
+  left: -220px; top: 50%; transform: translateY(-50%);
+  background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 68%);
+  pointer-events: none;
+}
+#login-wrap::after {
+  content: '';
+  position: absolute; width: 600px; height: 600px;
+  right: -180px; top: 50%; transform: translateY(-50%);
+  background: radial-gradient(circle, rgba(219,39,119,0.14) 0%, transparent 68%);
+  pointer-events: none;
+}
+.login-card {
+  width: 440px;
+  background: var(--bg-card);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-hover);
+  border-radius: 24px;
+  padding: 52px 44px 44px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.08);
+  position: relative; z-index: 1;
+  animation: fadeInUp 0.45s ease both;
+}
+.login-logo { text-align: center; margin-bottom: 36px; }
+.login-logo h1 {
+  font-size: 34px; font-weight: 800; letter-spacing: -1px;
+  background: var(--gradient);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.login-logo p { color: var(--text-secondary); font-size: 13.5px; margin-top: 6px; }
+.login-demo-badge {
+  background: var(--purple-glow); border: 1px solid rgba(124,58,237,0.22);
+  color: #a78bfa; border-radius: 10px; padding: 10px 16px;
+  font-size: 12.5px; margin-bottom: 28px; text-align: center;
+}
+.login-demo-badge strong { color: #c4b5fd; }
+.form-label {
+  display: block; font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-secondary); margin-bottom: 8px;
+}
+.form-input {
+  width: 100%; background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text-primary); font-size: 14px; font-family: 'Inter', sans-serif;
+  padding: 12px 16px; transition: all 0.2s; box-sizing: border-box;
+}
+.form-input:focus {
+  outline: none; border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+  background: rgba(124,58,237,0.05);
+}
+.form-input::placeholder { color: rgba(100,116,139,0.5); }
+textarea.form-input { resize: vertical; min-height: 100px; }
+.form-group { margin-bottom: 16px; }
+.btn-primary {
+  width: 100%; padding: 13px; font-size: 15px; font-weight: 700; margin-top: 6px;
+  background: var(--gradient); color: #fff; border-radius: 100px;
+  transition: all 0.2s; box-shadow: 0 4px 20px rgba(124,58,237,0.3);
+}
+.btn-primary:hover { box-shadow: 0 4px 30px rgba(124,58,237,0.5); transform: translateY(-1px); }
+.login-hint { text-align: center; font-size: 12px; color: rgba(100,116,139,0.55); margin-top: 16px; }
+.login-error {
+  background: rgba(239,68,68,0.09); border: 1px solid rgba(239,68,68,0.22);
+  color: #fca5a5; border-radius: 10px; padding: 10px 14px;
+  font-size: 13px; margin-top: 14px; display: none; text-align: center;
+}
 
-/* ── Horizontal bar chart fix ── */
+/* ═══════════════════════════════════
+   APP LAYOUT
+═══════════════════════════════════ */
+.app-wrapper { display: flex; min-height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width); height: 100vh;
+  background: #080b14; border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; left: 0; top: 0; z-index: 100;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+.sidebar.collapsed { width: var(--sidebar-collapsed); }
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .nav-lock,
+.sidebar.collapsed .nav-section-label,
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .user-details { opacity: 0; pointer-events: none; width: 0; overflow: hidden; }
+.sidebar.collapsed .logo-icon { margin: 0 auto; }
+.sidebar.collapsed .user-info { justify-content: center; }
+.sidebar.collapsed .upgrade-btn span:last-child { display: none; }
+
+.sidebar-header {
+  padding: 20px 16px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border); min-height: 72px;
+}
+.sidebar-logo { display: flex; align-items: center; gap: 12px; }
+.logo-icon {
+  width: 36px; height: 36px; background: var(--gradient); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; color: white; flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(124,58,237,0.4);
+}
+.logo-name { font-size: 17px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+.logo-sub { display: block; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.sidebar-toggle {
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-secondary); width: 30px; height: 30px; border-radius: 8px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.2s;
+}
+.sidebar-toggle:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--border-hover); }
+
+.sidebar-nav {
+  flex: 1; padding: 16px 12px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.nav-section-label {
+  font-size: 10px; font-weight: 600; color: var(--text-muted);
+  letter-spacing: 1px; padding: 12px 12px 6px; white-space: nowrap; transition: opacity 0.2s;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: 10px; color: var(--text-secondary);
+  text-decoration: none; font-size: 13.5px; font-weight: 500;
+  transition: all 0.2s; position: relative; white-space: nowrap; cursor: pointer;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+.nav-item.active { background: var(--purple-glow); color: var(--text-primary); border: 1px solid rgba(124,58,237,0.2); }
+.nav-item.active .nav-icon svg { stroke: var(--purple-light); }
+.nav-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.nav-lock { margin-left: auto; font-size: 10px; opacity: 0.4; }
+
+.sidebar-footer { padding: 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+.user-info {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border); margin-bottom: 4px;
+}
+.user-avatar {
+  width: 32px; height: 32px; background: var(--gradient); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: white; flex-shrink: 0;
+}
+.user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+.user-plan { display: block; font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+.upgrade-btn {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: var(--gradient); border-radius: 10px; color: white;
+  text-decoration: none; font-size: 13px; font-weight: 600;
+  transition: all 0.2s; box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+  white-space: nowrap; cursor: pointer;
+}
+.upgrade-btn:hover { box-shadow: 0 4px 25px rgba(124,58,237,0.5); transform: translateY(-1px); }
+.logout-item { color: var(--text-secondary); }
+.logout-item:hover { color: #f87171; background: rgba(248,113,113,0.08); }
+
+/* ── Main content ── */
+.main-content {
+  flex: 1; margin-left: var(--sidebar-width); min-height: 100vh;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Topbar ── */
+.topbar {
+  height: 72px; background: rgba(6, 8, 16, 0.8); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; position: sticky; top: 0; z-index: 50;
+}
+.breadcrumb-label { font-size: 11px; font-weight: 600; color: var(--purple-light); text-transform: uppercase; letter-spacing: 1px; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1.2; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.demo-badge {
+  display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500;
+  color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border);
+  padding: 6px 14px; border-radius: 100px;
+}
+.demo-dot { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+.topbar-upgrade-btn {
+  background: var(--gradient); color: white; border: none;
+  padding: 8px 20px; border-radius: 100px; font-size: 13px; font-weight: 600;
+  cursor: pointer; text-decoration: none; transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(124,58,237,0.3);
+}
+.topbar-upgrade-btn:hover { box-shadow: 0 0 30px rgba(124,58,237,0.5); transform: translateY(-1px); }
+
+/* ── Page content ── */
+.page-content { padding: 32px; max-width: 1400px; }
+.page { display: none; }
+.page.active { display: block; animation: fadeInUp 0.3s ease both; }
+
+/* ── Stat grid ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; position: relative; overflow: hidden;
+  transition: all 0.3s; animation: fadeInUp 0.4s ease both;
+}
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--gradient); opacity: 0; transition: opacity 0.3s;
+}
+.stat-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); transform: translateY(-2px); }
+.stat-card:hover::before { opacity: 1; }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.2s; }
+.stat-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+.stat-value {
+  font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 8px;
+  background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.stat-sub { font-size: 12px; color: var(--text-secondary); }
+.stat-icon {
+  position: absolute; top: 24px; right: 24px; width: 40px; height: 40px;
+  background: var(--gradient-subtle); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+
+/* ── Chart card ── */
+.chart-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; margin-bottom: 24px;
+  animation: fadeInUp 0.4s ease both;
+}
+.chart-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.chart-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.chart-badges { display: flex; gap: 8px; align-items: center; }
+.chart-badge {
+  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 100px;
+  background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.2);
+}
+.chart-badge-warn {
+  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 100px;
+  background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2);
+}
+.chart-wrap { position: relative; height: 320px; }
 #products-chart-wrap { position: relative; height: 340px; }
+.chart-legend { display: flex; gap: 20px; margin-top: 16px; font-size: 12px; color: var(--text-secondary); }
+.chart-legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-line { display: inline-block; width: 24px; height: 3px; border-radius: 2px; }
+
+/* ── Data table card ── */
+.data-table-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; margin-bottom: 24px;
+  animation: fadeInUp 0.4s ease both;
+}
+.data-table-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.data-table-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.data-table-badges { display: flex; gap: 8px; align-items: center; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  padding: 12px 24px; text-align: left; font-size: 11px; font-weight: 600;
+  color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px;
+  background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border);
+}
+.data-table td { padding: 16px 24px; font-size: 13.5px; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.03); }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+.data-table tr:last-child td { border-bottom: none; }
+.td-product { font-weight: 600; }
+.td-num { font-variant-numeric: tabular-nums; }
+.tag-growing {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+  border-radius: 100px; font-size: 11px; font-weight: 600;
+  background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.15);
+}
+.tag-declining {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+  border-radius: 100px; font-size: 11px; font-weight: 600;
+  background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.15);
+}
+.tag-stable {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+  border-radius: 100px; font-size: 11px; font-weight: 600;
+  background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.15);
+}
+.locked-cell { color: var(--text-muted); font-size: 12px; display: flex; align-items: center; gap: 6px; }
+.info-box {
+  background: rgba(124,58,237,0.07); border: 1px solid rgba(124,58,237,0.18);
+  border-radius: 10px; padding: 13px 17px; color: #a78bfa;
+  font-size: 13px; display: flex; align-items: center; gap: 10px;
+}
+.info-box a { color: #c4b5fd; font-weight: 600; text-decoration: underline; cursor: pointer; }
+
+/* ── Lock screen ── */
+.lock-screen {
+  min-height: calc(100vh - 200px);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.lock-glow {
+  position: absolute; width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%);
+  top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
+}
+.lock-content { text-align: center; max-width: 560px; position: relative; z-index: 1; }
+.lock-icon-ring {
+  width: 80px; height: 80px; background: var(--gradient-subtle);
+  border: 1px solid rgba(124,58,237,0.3); border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px; color: var(--purple-light);
+  box-shadow: 0 0 40px rgba(124,58,237,0.15);
+}
+.lock-badge {
+  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--purple-light); background: var(--purple-glow);
+  border: 1px solid rgba(124,58,237,0.2); padding: 5px 14px;
+  border-radius: 100px; margin-bottom: 20px;
+}
+.lock-title { font-size: 36px; font-weight: 800; color: var(--text-primary); margin-bottom: 16px; line-height: 1.2; }
+.lock-desc { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 32px; }
+.lock-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--gradient); color: white; text-decoration: none;
+  padding: 14px 32px; border-radius: 100px; font-size: 15px; font-weight: 600;
+  box-shadow: 0 0 30px rgba(124,58,237,0.4); transition: all 0.2s; margin-bottom: 48px; cursor: pointer;
+}
+.lock-cta:hover { box-shadow: 0 0 50px rgba(124,58,237,0.6); transform: translateY(-2px); }
+.lock-features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.lock-feature-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; text-align: left; transition: border-color 0.2s;
+}
+.lock-feature-card:hover { border-color: var(--border-hover); }
+.lock-feature-icon { font-size: 20px; margin-bottom: 8px; }
+.lock-feature-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.lock-feature-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+/* ── Upload ── */
+.upload-limit-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);
+  color: #fbbf24; font-size: 12px; font-weight: 500;
+  padding: 6px 14px; border-radius: 8px; margin-bottom: 20px;
+}
+.upload-zone {
+  border: 2px dashed rgba(124,58,237,0.3); border-radius: 16px;
+  padding: 60px 40px; text-align: center;
+  background: rgba(124,58,237,0.03); transition: all 0.2s; cursor: pointer;
+}
+.upload-zone:hover, .upload-zone.drag-over { border-color: var(--purple); background: rgba(124,58,237,0.06); }
+.upload-zone input[type=file] { display: none; }
+.upload-icon { font-size: 48px; margin-bottom: 16px; }
+.upload-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+.upload-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+.upload-btn {
+  background: var(--gradient); color: white; border: none;
+  padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+}
+.upload-result {
+  display: none; border-radius: 12px; padding: 20px 22px; margin-top: 20px; font-size: 13.5px;
+  background: rgba(74,222,128,0.07); border: 1px solid rgba(74,222,128,0.18); color: #4ade80;
+}
+.upload-result.error { background: rgba(239,68,68,0.07); border-color: rgba(239,68,68,0.18); color: #f87171; }
+.upload-result h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.upload-result p { margin-bottom: 5px; }
+.code-block {
+  background: #060810; border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 13px; color: #94a3b8; line-height: 1.8;
+  overflow-x: auto;
+}
+.btn-outline {
+  display: inline-block; border: 1px solid var(--border); color: var(--text-secondary);
+  font-size: 13px; font-weight: 600; padding: 8px 20px; border-radius: 8px;
+  margin-top: 14px; transition: all 0.2s; cursor: pointer; background: transparent; font-family: 'Inter', sans-serif;
+}
+.btn-outline:hover { border-color: var(--purple-light); color: var(--purple-light); }
+
+/* ── Upgrade page ── */
+.upgrade-hero { text-align: center; padding: 60px 32px 48px; position: relative; }
+.upgrade-hero-glow {
+  position: absolute; width: 800px; height: 400px;
+  background: radial-gradient(ellipse, rgba(124,58,237,0.1) 0%, transparent 70%);
+  top: 0; left: 50%; transform: translateX(-50%); pointer-events: none;
+}
+.upgrade-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--purple-light);
+  background: var(--purple-glow); border: 1px solid rgba(124,58,237,0.2);
+  padding: 5px 16px; border-radius: 100px; display: inline-block; margin-bottom: 20px;
+}
+.upgrade-title { font-size: 52px; font-weight: 800; line-height: 1.15; margin-bottom: 16px; color: var(--text-primary); }
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.upgrade-subtitle { font-size: 16px; color: var(--text-secondary); max-width: 500px; margin: 0 auto; line-height: 1.7; }
+.upgrade-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  padding: 0 32px 48px; max-width: 1100px; margin: 0 auto;
+}
+.features-card, .contact-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 32px; animation: fadeInUp 0.4s ease both;
+}
+.features-title { font-size: 18px; font-weight: 700; margin-bottom: 24px; color: var(--text-primary); }
+.feature-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.feature-row:last-of-type { border-bottom: none; }
+.feature-check {
+  width: 22px; height: 22px; background: var(--gradient); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px; font-size: 11px; color: white;
+}
+.feature-text { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+.price-block { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--border); }
+.price-amount {
+  font-size: 56px; font-weight: 900;
+  background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.price-period { font-size: 20px; color: var(--text-secondary); font-weight: 400; }
+.price-note { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+.contact-card h3 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+.contact-card > p { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+.form-submit {
+  width: 100%; background: var(--gradient); color: white; border: none;
+  padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(124,58,237,0.3); margin-top: 8px;
+}
+.form-submit:hover { box-shadow: 0 4px 30px rgba(124,58,237,0.5); transform: translateY(-1px); }
+.roi-box {
+  background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.14);
+  border-radius: 12px; padding: 14px 18px; font-size: 13px;
+  color: #a78bfa; line-height: 1.6; margin-top: 18px;
+}
+.roi-box strong { color: #c4b5fd; }
+.upgrade-form-error {
+  background: rgba(239,68,68,0.09); border: 1px solid rgba(239,68,68,0.2);
+  color: #fca5a5; border-radius: 10px; padding: 10px 14px;
+  font-size: 13px; margin-bottom: 14px; display: none; text-align: center;
+}
+.form-success { display: none; text-align: center; padding: 32px 20px; }
+.form-success .s-icon { font-size: 44px; margin-bottom: 14px; }
+.form-success h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; color: var(--text-primary); }
+.form-success p { font-size: 13.5px; color: var(--text-secondary); }
+.form-success-bar {
+  background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2);
+  border-radius: 10px; padding: 12px 16px; color: #4ade80; font-size: 14px; font-weight: 600; margin-top: 14px;
+}
+
+/* ── Spinner / utils ── */
+.spinner {
+  display: inline-block; width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.08); border-top-color: var(--purple-light);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+.loading-state { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 60px 20px; color: var(--text-secondary); font-size: 14px; }
+.d-none { display: none !important; }
+.text-green { color: #4ade80; }
+.text-red   { color: #f87171; }
+.text-muted { color: var(--text-secondary); }
+.text-purple { color: #a78bfa; }
 
 /* ── Responsive ── */
-@media (max-width: 900px) {
-  .stat-grid { grid-template-columns: repeat(2,1fr); }
-  .upgrade-layout { grid-template-columns: 1fr; }
-  #sidebar { transform: translateX(-100%); transition: transform .3s; }
-  #sidebar.open { transform: translateX(0); }
-  #main { margin-left: 0; }
-  #upgrade-banner { font-size: 12px; padding: 0 12px; }
+@media (max-width: 1100px) {
+  .upgrade-grid { grid-template-columns: 1fr; }
+  .upgrade-title { font-size: 38px; }
 }
-@media (max-width: 500px) {
-  .stat-grid { grid-template-columns: 1fr; }
-  #main { padding: 20px 16px; }
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .lock-features-grid { grid-template-columns: 1fr 1fr; }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0 !important; }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .page-content { padding: 20px 16px; }
+  .lock-features-grid { grid-template-columns: 1fr; }
+  .topbar { padding: 0 16px; }
+  .upgrade-title { font-size: 28px; }
 }
 </style>
 </head>
 <body data-init-page="{{ page }}">
 
-<!-- ══════════ LOGIN ══════════ -->
+<!-- ════════════════════════
+     LOGIN
+════════════════════════ -->
 <div id="login-wrap" {% if page != 'login' %}class="d-none"{% endif %}>
   <div class="login-card">
     <div class="login-logo">
-      <div class="logo-icon">📊</div>
-      <h1>SalesIQ</h1>
+      <h1>SalesIQ.</h1>
       <p>AI Sales Intelligence Platform</p>
     </div>
     <div class="login-demo-badge">
@@ -735,383 +570,425 @@ textarea.form-input {
       <input id="inp-pass" class="form-input" type="password" placeholder="••••••••" autocomplete="current-password" />
     </div>
     <button class="btn-primary" id="login-btn">Sign In →</button>
+    <p class="login-hint">Free Demo Account &nbsp;·&nbsp; No credit card required</p>
     <div id="login-error" class="login-error"></div>
   </div>
 </div>
 
-<!-- ══════════ APP ══════════ -->
+<!-- ════════════════════════
+     APP
+════════════════════════ -->
 <div id="app-wrap" {% if page == 'login' %}class="d-none"{% endif %}>
+  <div class="app-wrapper">
 
-  <!-- Banner -->
-  <div id="upgrade-banner">
-    <span>🎯 Free Demo &nbsp;·&nbsp; Upgrade to Pro for unlimited forecasts and integrations</span>
-    <button class="banner-upgrade-btn" onclick="navigate('upgrade')">Upgrade →</button>
-  </div>
-
-  <!-- Sidebar -->
-  <nav id="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-logo">📊</div>
-      <h2>SalesIQ</h2>
-      <span>AI Sales Intelligence</span>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Main</div>
-      <div class="nav-link" data-page="dashboard" onclick="navigate('dashboard')">
-        <span class="nav-icon">📈</span> Dashboard
-      </div>
-      <div class="nav-link" data-page="forecast" onclick="navigate('forecast')">
-        <span class="nav-icon">🔮</span> Sales Forecast
-      </div>
-      <div class="nav-link" data-page="products" onclick="navigate('products')">
-        <span class="nav-icon">📦</span> Product Performance
-      </div>
-      <div class="nav-link" data-page="ltv" onclick="navigate('ltv')">
-        <span class="nav-icon">👥</span> Customer LTV
-        <span class="lock-badge">🔒</span>
-      </div>
-
-      <div class="sidebar-section-label" style="margin-top:8px;">Data</div>
-      <div class="nav-link" data-page="upload" onclick="navigate('upload')">
-        <span class="nav-icon">📤</span> Upload Data
-      </div>
-      <div class="nav-link" data-page="integrations" onclick="navigate('integrations')">
-        <span class="nav-icon">🔌</span> Integrations
-        <span class="lock-badge">🔒</span>
-      </div>
-    </div>
-    <div class="sidebar-footer">
-      <div class="nav-link" data-page="upgrade" onclick="navigate('upgrade')" style="color:#3b82f6;font-weight:600;">
-        <span class="nav-icon">⭐</span> Upgrade to Pro
-      </div>
-      <div class="nav-logout" onclick="location.href='/logout'">
-        <span style="font-size:16px;">↩</span> Logout
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main content area -->
-  <div id="main">
-
-    <!-- ── DASHBOARD ── -->
-    <div id="page-dashboard" class="page">
-      <div class="page-header">
-        <h1>Dashboard</h1>
-        <p>Overview of your sales performance for the last 90 days</p>
-      </div>
-
-      <div class="stat-grid" id="dash-stats">
-        <div class="stat-card">
-          <div class="stat-label">Total Revenue</div>
-          <div class="stat-value text-green" id="stat-total">—</div>
-          <div class="stat-sub">Last 90 days</div>
-          <div class="stat-icon">💰</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Predicted Revenue</div>
-          <div class="stat-value" id="stat-predicted" style="color:#a78bfa;">—</div>
-          <div class="stat-sub">Next 7 days forecast</div>
-          <div class="stat-icon">🔮</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Best Product</div>
-          <div class="stat-value" id="stat-best" style="font-size:18px;line-height:1.3;margin-top:4px;">—</div>
-          <div class="stat-sub">By revenue (90d)</div>
-          <div class="stat-icon">🏆</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Avg Daily Revenue</div>
-          <div class="stat-value text-green" id="stat-avg">—</div>
-          <div class="stat-sub">90-day average</div>
-          <div class="stat-icon">📅</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          Revenue Trend
-          <span class="badge">LIVE</span>
-          <span class="badge badge-warning" style="margin-left:auto;">7-Day Forecast (Free)</span>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="dash-chart"></canvas>
-        </div>
-        <div style="display:flex;gap:20px;margin-top:14px;font-size:12px;color:var(--muted);">
-          <span style="display:flex;align-items:center;gap:6px;">
-            <span style="display:inline-block;width:24px;height:3px;background:#3b82f6;border-radius:2px;"></span> Actual Sales
-          </span>
-          <span style="display:flex;align-items:center;gap:6px;">
-            <span style="display:inline-block;width:24px;height:3px;background:#a78bfa;border-radius:2px;border-top:2px dashed #a78bfa;"></span> 7-Day Forecast
-          </span>
-        </div>
-      </div>
-    </div><!-- /dashboard -->
-
-    <!-- ── SALES FORECAST ── -->
-    <div id="page-forecast" class="page">
-      <div class="page-header">
-        <h1>Sales Forecast</h1>
-        <p>AI-powered revenue predictions per product</p>
-      </div>
-      <div class="card mt-0">
-        <div class="card-title">
-          Forecast by Product
-          <span class="badge">7-Day Unlocked</span>
-          <span class="badge badge-warning" style="margin-left:4px;">14/30-Day Pro Only</span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Product Name</th>
-                <th>Last 30 Days Sales</th>
-                <th>Next 7 Days Forecast</th>
-                <th>Next 14 Days Forecast</th>
-                <th>Next 30 Days Forecast</th>
-                <th>Trend</th>
-              </tr>
-            </thead>
-            <tbody id="forecast-tbody">
-              <tr><td colspan="6"><div class="loading-state"><span class="spinner"></span> Loading forecasts…</div></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="info-box">
-          <span class="info-icon">ℹ️</span>
-          <span>Upgrade to Pro to unlock <strong>14-day and 30-day forecasts</strong> for every product. &nbsp;
-            <a onclick="navigate('upgrade')">Upgrade now →</a>
-          </span>
-        </div>
-      </div>
-    </div><!-- /forecast -->
-
-    <!-- ── PRODUCT PERFORMANCE ── -->
-    <div id="page-products" class="page">
-      <div class="page-header">
-        <h1>Product Performance</h1>
-        <p>Top 10 products by revenue over the last 90 days</p>
-      </div>
-      <div class="card">
-        <div class="card-title">Revenue by Product <span class="badge">Top 10</span></div>
-        <div id="products-chart-wrap">
-          <canvas id="products-chart"></canvas>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Detailed Breakdown</div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Product</th>
-                <th>Units Sold</th>
-                <th>Total Revenue</th>
-                <th>Avg Order Value</th>
-              </tr>
-            </thead>
-            <tbody id="products-tbody">
-              <tr><td colspan="5"><div class="loading-state"><span class="spinner"></span> Loading products…</div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div><!-- /products -->
-
-    <!-- ── CUSTOMER LTV (LOCKED) ── -->
-    <div id="page-ltv" class="page">
-      <div class="lock-screen">
-        <div class="lock-icon-wrap">🔒</div>
-        <h2>Customer Lifetime Value Analysis</h2>
-        <div class="lock-subtitle">Available in Pro Plan</div>
-        <p>Analyze customer segments, predict lifetime value, and identify your highest-value customers. Get RFM scoring, cohort analysis, and churn prediction. Unlock this feature by upgrading to Pro.</p>
-        <button class="btn-upgrade-big" onclick="navigate('upgrade')">Upgrade to Pro →</button>
-        <div style="margin-top:32px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:left;">
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-            <div style="font-size:22px;margin-bottom:8px;">👤</div>
-            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Customer Segments</div>
-            <div style="font-size:12px;color:var(--muted);">High / Mid / Low value buckets</div>
-          </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-            <div style="font-size:22px;margin-bottom:8px;">📊</div>
-            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">LTV Prediction</div>
-            <div style="font-size:12px;color:var(--muted);">12-month revenue per customer</div>
-          </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-            <div style="font-size:22px;margin-bottom:8px;">⚠️</div>
-            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Churn Risk</div>
-            <div style="font-size:12px;color:var(--muted);">Flag customers likely to leave</div>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="logo-icon">S</div>
+          <div class="logo-text">
+            <span class="logo-name">SalesIQ.</span>
+            <span class="logo-sub">AI Sales Intelligence</span>
           </div>
         </div>
-      </div>
-    </div><!-- /ltv -->
-
-    <!-- ── UPLOAD DATA ── -->
-    <div id="page-upload" class="page">
-      <div class="page-header">
-        <h1>Upload Data</h1>
-        <p>Import your sales CSV to update forecasts and product analytics</p>
+        <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+          </svg>
+        </button>
       </div>
 
-      <div class="warn-box">
-        <span>⚠️</span>
-        <span><strong>Free demo limited to 50 rows.</strong> Upgrade to Pro for unlimited data processing.</span>
-      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">MAIN</div>
+        <a class="nav-item" data-page="dashboard" href="/dashboard" onclick="event.preventDefault();navigate('dashboard')">
+          <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <a class="nav-item" data-page="forecast" href="/forecast" onclick="event.preventDefault();navigate('forecast')">
+          <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>
+          <span class="nav-label">Sales Forecast</span>
+        </a>
+        <a class="nav-item" data-page="products" href="/products" onclick="event.preventDefault();navigate('products')">
+          <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+          <span class="nav-label">Product Performance</span>
+        </a>
+        <a class="nav-item" data-page="ltv" href="/ltv" onclick="event.preventDefault();navigate('ltv')">
+          <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <span class="nav-label">Customer LTV</span>
+          <span class="nav-lock">🔒</span>
+        </a>
 
-      <div class="card">
-        <div class="card-title">Upload CSV File</div>
-        <div class="upload-zone" id="upload-zone">
-          <input type="file" id="file-input" accept=".csv" />
-          <div class="upload-icon">📂</div>
-          <h3>Drag &amp; drop your CSV here</h3>
-          <p>or click to browse files</p>
-          <p style="margin-top:8px;font-size:12px;color:var(--accent);">Max 50 rows in free demo</p>
-          <button class="btn-outline" onclick="document.getElementById('file-input').click()">Browse Files</button>
-        </div>
-        <div id="upload-result" class="upload-result"></div>
+        <div class="nav-section-label">DATA</div>
+        <a class="nav-item" data-page="upload" href="/upload" onclick="event.preventDefault();navigate('upload')">
+          <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
+          <span class="nav-label">Upload Data</span>
+        </a>
+        <a class="nav-item" data-page="integrations" href="/integrations" onclick="event.preventDefault();navigate('integrations')">
+          <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+          <span class="nav-label">Integrations</span>
+          <span class="nav-lock">🔒</span>
+        </a>
+      </nav>
 
-        <div class="format-box" style="margin-top:20px;">
-          <h4>Expected CSV Format</h4>
-          <div class="format-code">
-            <div class="format-row">date,product_name,units_sold,revenue,customer_id</div>
-            <div class="format-row">2024-03-01,Running Shoes,3,299.97,CUST0001</div>
-            <div class="format-row">2024-03-01,Yoga Mat,1,49.99,CUST0002</div>
-            <div class="format-row">2024-03-02,Protein Powder,2,89.98,CUST0003</div>
-          </div>
-          <button class="btn-outline" onclick="downloadTemplate()" style="margin-top:14px;">⬇ Download Template CSV</button>
-        </div>
-      </div>
-    </div><!-- /upload -->
-
-    <!-- ── INTEGRATIONS (LOCKED) ── -->
-    <div id="page-integrations" class="page">
-      <div class="lock-screen">
-        <div class="lock-icon-wrap">🔒</div>
-        <h2>Connect Your Shopify Store</h2>
-        <div class="lock-subtitle">Available in Pro Plan</div>
-        <p>Automatically sync your Shopify orders every 24 hours. No manual uploads needed. Your team sees updated forecasts every morning with zero effort.</p>
-
-        <div class="integration-preview">
-          <div class="prev-icon">🛍️</div>
-          <strong>Shopify Integration Preview</strong>
-          <span style="font-size:12px;">Live connection dashboard — unlocked in Pro</span>
-        </div>
-
-        <button class="btn-upgrade-big" onclick="navigate('upgrade')">Upgrade to Pro →</button>
-
-        <div style="margin-top:36px;display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left;max-width:400px;margin-left:auto;margin-right:auto;margin-top:32px;">
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-            <div style="font-size:20px;margin-bottom:6px;">🔄</div>
-            <div style="font-size:13px;font-weight:700;margin-bottom:3px;">Auto Sync</div>
-            <div style="font-size:12px;color:var(--muted);">Every 24 hours</div>
-          </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-            <div style="font-size:20px;margin-bottom:6px;">📧</div>
-            <div style="font-size:13px;font-weight:700;margin-bottom:3px;">Email Alerts</div>
-            <div style="font-size:12px;color:var(--muted);">Declining product notices</div>
-          </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-            <div style="font-size:20px;margin-bottom:6px;">🏪</div>
-            <div style="font-size:13px;font-weight:700;margin-bottom:3px;">Multi-Store</div>
-            <div style="font-size:12px;color:var(--muted);">Connect multiple stores</div>
-          </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-            <div style="font-size:20px;margin-bottom:6px;">🔒</div>
-            <div style="font-size:13px;font-weight:700;margin-bottom:3px;">Secure OAuth</div>
-            <div style="font-size:12px;color:var(--muted);">Enterprise-grade security</div>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">D</div>
+          <div class="user-details">
+            <span class="user-name">Demo Account</span>
+            <span class="user-plan">Free Plan</span>
           </div>
         </div>
+        <a class="upgrade-btn" href="/upgrade" onclick="event.preventDefault();navigate('upgrade')">
+          <span>⚡</span>
+          <span class="nav-label">Upgrade to Pro</span>
+        </a>
+        <a href="/" class="nav-item logout-item">
+          <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="nav-label">Home</span>
+        </a>
       </div>
-    </div><!-- /integrations -->
+    </aside>
 
-    <!-- ── UPGRADE ── -->
-    <div id="page-upgrade" class="page">
-      <div class="upgrade-hero">
-        <h1>Unlock SalesIQ Pro</h1>
-        <p>Everything in the free demo, plus unlimited data, longer forecasts, integrations, and enterprise features your team will rely on daily.</p>
-      </div>
+    <!-- Main -->
+    <div class="main-content" id="mainContent">
 
-      <div class="upgrade-layout">
-        <!-- Features + Pricing -->
-        <div class="card" style="margin-bottom:0;">
-          <div class="card-title" style="font-size:17px;">What's Included</div>
-          <ul class="feature-list">
-            <li><span class="feat-check">✓</span> Unlimited data processing (no 50-row cap)</li>
-            <li><span class="feat-check">✓</span> 14-day and 30-day sales forecasts</li>
-            <li><span class="feat-check">✓</span> Customer Lifetime Value analysis</li>
-            <li><span class="feat-check">✓</span> Shopify integration (auto-sync daily)</li>
-            <li><span class="feat-check">✓</span> Email alerts for declining products</li>
-            <li><span class="feat-check">✓</span> White-label with your company branding</li>
-            <li><span class="feat-check">✓</span> Priority support &amp; onboarding call</li>
-            <li><span class="feat-check">✓</span> Advanced cohort &amp; RFM analysis</li>
-          </ul>
-          <div class="price-tag" style="margin-top:24px;">
-            <div class="amount">$1,999</div>
-            <div class="period">/month</div>
-            <div class="price-note">Billed monthly &nbsp;·&nbsp; Cancel anytime</div>
-          </div>
-          <div style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:14px 16px;font-size:13px;color:#a5b4fc;line-height:1.6;">
-            💬 Most customers see a <strong style="color:#c7d2fe;">positive ROI within 60 days</strong> from improved inventory decisions and reduced stockouts.
-          </div>
+      <!-- Topbar -->
+      <header class="topbar">
+        <div>
+          <div class="breadcrumb-label" id="topbar-label">Sales Overview</div>
+          <h1 class="page-title" id="topbar-title">Dashboard</h1>
         </div>
+        <div class="topbar-right">
+          <div class="demo-badge"><span class="demo-dot"></span>Free Demo</div>
+          <a href="/upgrade" onclick="event.preventDefault();navigate('upgrade')" class="topbar-upgrade-btn">Upgrade to Pro →</a>
+        </div>
+      </header>
 
-        <!-- Contact form -->
-        <div class="card upgrade-form" style="margin-bottom:0;">
-          <div class="card-title" style="font-size:17px;">Request a Demo Call</div>
+      <div class="page-content">
 
-          <div id="upgrade-form-body">
-            <div class="form-group">
-              <label class="form-label">Your Name *</label>
-              <input id="uf-name" class="form-input" type="text" placeholder="Jane Smith" />
+        <!-- ── DASHBOARD ── -->
+        <div id="page-dashboard" class="page">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Revenue</div>
+              <div class="stat-value" id="stat-total">—</div>
+              <div class="stat-sub">Last 90 days</div>
+              <div class="stat-icon">💰</div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Work Email *</label>
-              <input id="uf-email" class="form-input" type="email" placeholder="jane@company.com" />
+            <div class="stat-card">
+              <div class="stat-label">Predicted Revenue</div>
+              <div class="stat-value" id="stat-predicted">—</div>
+              <div class="stat-sub">Next 7 days forecast</div>
+              <div class="stat-icon">🔮</div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Company *</label>
-              <input id="uf-company" class="form-input" type="text" placeholder="Acme Sports" />
+            <div class="stat-card">
+              <div class="stat-label">Best Product</div>
+              <div class="stat-value" id="stat-best" style="font-size:18px;line-height:1.3;margin-top:4px;">—</div>
+              <div class="stat-sub">By revenue (90d)</div>
+              <div class="stat-icon">🏆</div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Message (optional)</label>
-              <textarea id="uf-message" class="form-input" rows="3" placeholder="Tell us about your store size, current tools, or any questions…"></textarea>
+            <div class="stat-card">
+              <div class="stat-label">Avg Daily Revenue</div>
+              <div class="stat-value" id="stat-avg">—</div>
+              <div class="stat-sub">90-day average</div>
+              <div class="stat-icon">📅</div>
             </div>
-            <div id="upgrade-form-error" class="login-error" style="margin-top:0;margin-bottom:14px;display:none;"></div>
-            <button class="btn-primary" id="upgrade-submit-btn" onclick="submitUpgrade()">
-              Request Demo Call →
-            </button>
           </div>
 
-          <div id="upgrade-success" class="form-success">
-            <div class="s-icon">🎉</div>
-            <h3>Thank you!</h3>
-            <p>We'll contact you within 24 hours to schedule your demo call. Check your inbox for a confirmation.</p>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-title">Revenue Trend</span>
+              <div class="chart-badges">
+                <span class="chart-badge">LIVE</span>
+                <span class="chart-badge-warn">7-Day Forecast (Free)</span>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="dash-chart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <div class="chart-legend-item">
+                <span class="legend-line" style="background:#8b5cf6;"></span>
+                Actual Sales
+              </div>
+              <div class="chart-legend-item">
+                <span class="legend-line" style="background:#ec4899;"></span>
+                7-Day Forecast
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div><!-- /upgrade -->
+        </div><!-- /dashboard -->
 
-  </div><!-- /main -->
+        <!-- ── SALES FORECAST ── -->
+        <div id="page-forecast" class="page">
+          <div class="data-table-card">
+            <div class="data-table-header">
+              <span class="data-table-title">Forecast by Product</span>
+              <div class="data-table-badges">
+                <span class="chart-badge">7-Day Unlocked</span>
+                <span class="chart-badge-warn">14/30-Day Pro Only</span>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Product Name</th>
+                    <th>Last 30 Days Sales</th>
+                    <th>Next 7 Days Forecast</th>
+                    <th>Next 14 Days Forecast</th>
+                    <th>Next 30 Days Forecast</th>
+                    <th>Trend</th>
+                  </tr>
+                </thead>
+                <tbody id="forecast-tbody">
+                  <tr><td colspan="6"><div class="loading-state"><span class="spinner"></span> Loading forecasts…</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="padding:0 24px 20px;">
+              <div class="info-box" style="margin-top:16px;">
+                <span>ℹ️</span>
+                <span>Upgrade to Pro to unlock <strong>14-day and 30-day forecasts</strong> for every product. &nbsp;
+                  <a onclick="navigate('upgrade')">Upgrade now →</a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div><!-- /forecast -->
+
+        <!-- ── PRODUCT PERFORMANCE ── -->
+        <div id="page-products" class="page">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-title">Revenue by Product</span>
+              <span class="chart-badge">Top 10</span>
+            </div>
+            <div id="products-chart-wrap">
+              <canvas id="products-chart"></canvas>
+            </div>
+          </div>
+          <div class="data-table-card">
+            <div class="data-table-header">
+              <span class="data-table-title">Detailed Breakdown</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Units Sold</th>
+                    <th>Total Revenue</th>
+                    <th>Avg Order Value</th>
+                  </tr>
+                </thead>
+                <tbody id="products-tbody">
+                  <tr><td colspan="5"><div class="loading-state"><span class="spinner"></span> Loading products…</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><!-- /products -->
+
+        <!-- ── CUSTOMER LTV (LOCKED) ── -->
+        <div id="page-ltv" class="page">
+          <div class="lock-screen">
+            <div class="lock-glow"></div>
+            <div class="lock-content">
+              <div class="lock-icon-ring">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+              <div class="lock-badge">PRO PLAN FEATURE</div>
+              <h2 class="lock-title">Customer Lifetime Value</h2>
+              <p class="lock-desc">Analyze customer segments, predict lifetime value, and identify your highest-value customers. Get RFM scoring, cohort analysis, and churn prediction powered by AI.</p>
+              <a href="/upgrade" class="lock-cta" onclick="event.preventDefault();navigate('upgrade')">Unlock This Feature →</a>
+              <div class="lock-features-grid">
+                <div class="lock-feature-card">
+                  <div class="lock-feature-icon">👤</div>
+                  <div class="lock-feature-title">Customer Segments</div>
+                  <div class="lock-feature-desc">High / Mid / Low value buckets with actionable targeting</div>
+                </div>
+                <div class="lock-feature-card">
+                  <div class="lock-feature-icon">📊</div>
+                  <div class="lock-feature-title">LTV Prediction</div>
+                  <div class="lock-feature-desc">12-month revenue forecast per individual customer</div>
+                </div>
+                <div class="lock-feature-card">
+                  <div class="lock-feature-icon">⚠️</div>
+                  <div class="lock-feature-title">Churn Risk</div>
+                  <div class="lock-feature-desc">Flag customers likely to leave before it's too late</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /ltv -->
+
+        <!-- ── UPLOAD DATA ── -->
+        <div id="page-upload" class="page">
+          <div>
+            <span class="upload-limit-badge">⚠️ Free demo limited to 50 rows &nbsp;·&nbsp; <a href="/upgrade" onclick="event.preventDefault();navigate('upgrade')" style="color:#fbbf24;text-decoration:underline;">Upgrade for unlimited</a></span>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-title">Upload CSV File</span>
+            </div>
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" id="file-input" accept=".csv" />
+              <div class="upload-icon">📂</div>
+              <div class="upload-title">Drag &amp; drop your CSV here</div>
+              <div class="upload-subtitle">or click to browse files · Max 50 rows in free demo</div>
+              <button class="upload-btn" onclick="document.getElementById('file-input').click()">Browse Files</button>
+            </div>
+            <div id="upload-result" class="upload-result"></div>
+            <div style="margin-top:24px;">
+              <div style="font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Expected CSV Format</div>
+              <div class="code-block">
+                <div>date,product_name,units_sold,revenue,customer_id</div>
+                <div>2024-03-01,Running Shoes,3,299.97,CUST0001</div>
+                <div>2024-03-01,Yoga Mat,1,49.99,CUST0002</div>
+                <div>2024-03-02,Protein Powder,2,89.98,CUST0003</div>
+              </div>
+              <button class="btn-outline" onclick="downloadTemplate()">⬇ Download Template CSV</button>
+            </div>
+          </div>
+        </div><!-- /upload -->
+
+        <!-- ── INTEGRATIONS (LOCKED) ── -->
+        <div id="page-integrations" class="page">
+          <div class="lock-screen">
+            <div class="lock-glow"></div>
+            <div class="lock-content">
+              <div class="lock-icon-ring">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+              </div>
+              <div class="lock-badge">PRO PLAN FEATURE</div>
+              <h2 class="lock-title">Connect Your Shopify Store</h2>
+              <p class="lock-desc">Automatically sync your Shopify orders every 24 hours. No manual uploads needed. Your team sees updated forecasts every morning with zero effort.</p>
+              <a href="/upgrade" class="lock-cta" onclick="event.preventDefault();navigate('upgrade')">Unlock This Feature →</a>
+              <div class="lock-features-grid">
+                <div class="lock-feature-card">
+                  <div class="lock-feature-icon">🔄</div>
+                  <div class="lock-feature-title">Auto Sync</div>
+                  <div class="lock-feature-desc">Shopify orders synced every 24 hours automatically</div>
+                </div>
+                <div class="lock-feature-card">
+                  <div class="lock-feature-icon">📧</div>
+                  <div class="lock-feature-title">Email Alerts</div>
+                  <div class="lock-feature-desc">Instant notifications on declining product trends</div>
+                </div>
+                <div class="lock-feature-card">
+                  <div class="lock-feature-icon">🏪</div>
+                  <div class="lock-feature-title">Multi-Store</div>
+                  <div class="lock-feature-desc">Connect and manage multiple Shopify stores at once</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /integrations -->
+
+        <!-- ── UPGRADE ── -->
+        <div id="page-upgrade" class="page">
+          <div class="upgrade-hero">
+            <div class="upgrade-hero-glow"></div>
+            <span class="upgrade-label">PRO PLAN</span>
+            <h1 class="upgrade-title">Unlock the Full<br><span class="gradient-text">Power of SalesIQ</span></h1>
+            <p class="upgrade-subtitle">Everything in the free demo, plus unlimited data, longer forecasts, real integrations, and features your team will rely on every day.</p>
+          </div>
+
+          <div class="upgrade-grid">
+            <div class="features-card">
+              <h3 class="features-title">What's Included</h3>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Unlimited data processing (no 50-row cap)</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">14-day and 30-day sales forecasts</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Customer Lifetime Value analysis</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Shopify integration (auto-sync daily)</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Email alerts for declining products</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">White-label with your company branding</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Priority support &amp; onboarding call</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Advanced cohort &amp; RFM analysis</span></div>
+              <div class="price-block">
+                <span class="price-amount">$1,999</span><span class="price-period">/month</span>
+                <p class="price-note">Billed monthly · Cancel anytime</p>
+              </div>
+              <div class="roi-box">
+                💬 Most customers see a <strong>positive ROI within 60 days</strong> from improved inventory decisions and reduced stockouts.
+              </div>
+            </div>
+
+            <div class="contact-card">
+              <h3>Request a Demo Call</h3>
+              <p>See the Pro version live with your actual store data.</p>
+              <div id="upgrade-form-body">
+                <form id="contact-form">
+                  <div class="form-group">
+                    <label class="form-label">Your Name *</label>
+                    <input id="uf-name" name="name" class="form-input" type="text" placeholder="Jane Smith" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Work Email *</label>
+                    <input id="uf-email" name="email" class="form-input" type="email" placeholder="jane@company.com" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Company *</label>
+                    <input id="uf-company" name="company" class="form-input" type="text" placeholder="Acme Sports" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Message (optional)</label>
+                    <textarea id="uf-message" name="message" class="form-input" rows="3" placeholder="Tell us about your store size, current tools, or any questions…"></textarea>
+                  </div>
+                  <div id="upgrade-form-error" class="upgrade-form-error"></div>
+                  <button class="form-submit" id="upgrade-submit-btn" type="submit">Request Demo Call →</button>
+                  <div id="form-message" style="margin-top:14px;font-size:13.5px;font-weight:600;"></div>
+                </form>
+              </div>
+              <div id="upgrade-success" class="form-success">
+                <div class="s-icon">🎉</div>
+                <h3>Message sent!</h3>
+                <div class="form-success-bar">✓ We'll be in touch within 24 hours.</div>
+                <p style="margin-top:14px;">Our team typically responds within a few hours during business days.</p>
+              </div>
+            </div>
+          </div>
+        </div><!-- /upgrade -->
+
+      </div><!-- /page-content -->
+    </div><!-- /main-content -->
+  </div><!-- /app-wrapper -->
 </div><!-- /app-wrap -->
 
 <script>
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    ROUTING & STATE
-════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 const INIT_PAGE = document.body.dataset.initPage || 'dashboard';
 let currentPage = null;
 let dashChart = null;
 let productsChart = null;
 
+const PAGE_META = {
+  dashboard:    { label: 'Sales Overview',  title: 'Dashboard' },
+  forecast:     { label: 'AI Predictions',  title: 'Sales Forecast' },
+  products:     { label: 'Analytics',       title: 'Product Performance' },
+  ltv:          { label: 'Pro Feature',     title: 'Customer LTV' },
+  upload:       { label: 'Data Import',     title: 'Upload Data' },
+  integrations: { label: 'Pro Feature',     title: 'Integrations' },
+  upgrade:      { label: 'Pro Plan',        title: 'Upgrade to Pro' },
+};
+
 function navigate(page) {
   if (currentPage === page) return;
 
-  // Update nav links
-  document.querySelectorAll('.nav-link').forEach(el => {
+  document.querySelectorAll('.nav-item[data-page]').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
 
-  // Hide all pages, show target
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   const target = document.getElementById('page-' + page);
   if (target) target.classList.add('active');
@@ -1119,12 +996,15 @@ function navigate(page) {
   currentPage = page;
   history.pushState({ page }, '', '/' + (page === 'dashboard' ? '' : page));
 
-  // Load page data
+  const meta = PAGE_META[page] || { label: '', title: page };
+  document.getElementById('topbar-label').textContent = meta.label;
+  document.getElementById('topbar-title').textContent = meta.title;
+
   switch (page) {
-    case 'dashboard':    loadDashboard();  break;
-    case 'forecast':     loadForecast();   break;
-    case 'products':     loadProducts();   break;
-    case 'upload':       initUpload();     break;
+    case 'dashboard': loadDashboard(); break;
+    case 'forecast':  loadForecast();  break;
+    case 'products':  loadProducts();  break;
+    case 'upload':    initUpload();    break;
   }
 }
 
@@ -1132,9 +1012,36 @@ window.addEventListener('popstate', e => {
   if (e.state && e.state.page) navigate(e.state.page);
 });
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
+   SIDEBAR TOGGLE
+═══════════════════════════════════════ */
+const sidebar      = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebarToggle');
+const mainContent  = document.getElementById('mainContent');
+
+if (sidebarToggle) {
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    if (sidebar.classList.contains('collapsed')) {
+      mainContent.style.marginLeft = 'var(--sidebar-collapsed)';
+      localStorage.setItem('sidebarCollapsed', 'true');
+    } else {
+      mainContent.style.marginLeft = 'var(--sidebar-width)';
+      localStorage.setItem('sidebarCollapsed', 'false');
+    }
+  });
+
+  if (localStorage.getItem('sidebarCollapsed') === 'true') {
+    sidebar.classList.add('collapsed');
+    mainContent.style.marginLeft = 'var(--sidebar-collapsed)';
+  } else {
+    mainContent.style.marginLeft = 'var(--sidebar-width)';
+  }
+}
+
+/* ═══════════════════════════════════════
    LOGIN
-════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 const loginBtn = document.getElementById('login-btn');
 if (loginBtn) {
   loginBtn.addEventListener('click', doLogin);
@@ -1144,12 +1051,12 @@ if (loginBtn) {
 }
 
 function doLogin() {
-  const btn = document.getElementById('login-btn');
+  const btn   = document.getElementById('login-btn');
   const errEl = document.getElementById('login-error');
-  const user = document.getElementById('inp-user').value.trim();
-  const pass = document.getElementById('inp-pass').value;
+  const user  = document.getElementById('inp-user').value.trim();
+  const pass  = document.getElementById('inp-pass').value;
   btn.textContent = 'Signing in…';
-  btn.disabled = true;
+  btn.disabled    = true;
   errEl.style.display = 'none';
 
   fetch('/login', {
@@ -1162,36 +1069,39 @@ function doLogin() {
     if (ok && data.ok) {
       location.href = '/dashboard';
     } else {
-      errEl.textContent = data.error || 'Invalid credentials';
+      errEl.textContent   = data.error || 'Invalid credentials';
       errEl.style.display = 'block';
-      btn.textContent = 'Sign In →';
-      btn.disabled = false;
+      btn.textContent     = 'Sign In →';
+      btn.disabled        = false;
     }
   })
   .catch(() => {
-    errEl.textContent = 'Network error. Please try again.';
+    errEl.textContent   = 'Network error. Please try again.';
     errEl.style.display = 'block';
-    btn.textContent = 'Sign In →';
-    btn.disabled = false;
+    btn.textContent     = 'Sign In →';
+    btn.disabled        = false;
   });
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    HELPERS
-════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 function fmt$(val) {
   if (val >= 1_000_000) return '$' + (val / 1_000_000).toFixed(2) + 'M';
   if (val >= 1_000)     return '$' + (val / 1_000).toFixed(1) + 'K';
   return '$' + val.toFixed(2);
 }
-
 function fmtFull$(val) {
   return '$' + val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+function trendTag(trend_cls, trend) {
+  const map = { 'trend-up': 'tag-growing', 'trend-down': 'tag-declining', 'trend-flat': 'tag-stable' };
+  return `<span class="${map[trend_cls] || 'tag-stable'}">${esc(trend)}</span>`;
+}
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    DASHBOARD
-════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 function loadDashboard() {
   fetch('/api/dashboard')
     .then(r => r.json())
@@ -1208,17 +1118,20 @@ function renderDashChart(chart) {
   const ctx = document.getElementById('dash-chart').getContext('2d');
   if (dashChart) { dashChart.destroy(); dashChart = null; }
 
-  const labels    = chart.labels;
-  const actual    = chart.actual;
-  const forecast  = chart.forecast;
+  const labels   = chart.labels;
+  const actual   = chart.actual;
+  const forecast = chart.forecast;
 
-  // Short date labels (show every 7th)
   const shortLabels = labels.map((l, i) => {
     const d = new Date(l + 'T00:00:00');
     return (i % 7 === 0 || i === labels.length - 1)
       ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
       : '';
   });
+
+  const gradActual = ctx.createLinearGradient(0, 0, 0, 320);
+  gradActual.addColorStop(0, 'rgba(139,92,246,0.2)');
+  gradActual.addColorStop(1, 'rgba(139,92,246,0)');
 
   dashChart = new Chart(ctx, {
     type: 'line',
@@ -1228,58 +1141,46 @@ function renderDashChart(chart) {
         {
           label: 'Actual Revenue',
           data: actual,
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59,130,246,.08)',
+          borderColor: '#8b5cf6',
+          backgroundColor: gradActual,
           borderWidth: 2,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          fill: true,
-          tension: 0.4,
-          spanGaps: false,
+          pointRadius: 0, pointHoverRadius: 4,
+          fill: true, tension: 0.4, spanGaps: false,
         },
         {
           label: '7-Day Forecast',
           data: forecast,
-          borderColor: '#a78bfa',
-          backgroundColor: 'rgba(167,139,250,.06)',
+          borderColor: '#ec4899',
+          backgroundColor: 'rgba(236,72,153,0.06)',
           borderWidth: 2,
           borderDash: [6, 4],
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          fill: true,
-          tension: 0.4,
-          spanGaps: false,
+          pointRadius: 0, pointHoverRadius: 4,
+          fill: true, tension: 0.4, spanGaps: false,
         },
       ],
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#1e293b',
-          borderColor: '#334155',
-          borderWidth: 1,
-          titleColor: '#f1f5f9',
-          bodyColor: '#94a3b8',
-          callbacks: {
-            label: ctx => ' ' + ctx.dataset.label + ': ' + fmtFull$(ctx.raw || 0),
-          },
+          backgroundColor: 'rgba(6,8,16,0.95)',
+          borderColor: 'rgba(124,58,237,0.25)', borderWidth: 1,
+          titleColor: '#f8fafc', bodyColor: '#64748b',
+          callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmtFull$(ctx.raw || 0) },
         },
       },
       scales: {
         x: {
-          grid: { color: 'rgba(51,65,85,.4)', drawBorder: false },
-          ticks: { color: '#64748b', maxRotation: 0, font: { size: 11 } },
+          grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+          ticks: { color: '#334155', maxRotation: 0, font: { size: 11, family: 'Inter' } },
         },
         y: {
-          grid: { color: 'rgba(51,65,85,.4)', drawBorder: false },
+          grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
           ticks: {
-            color: '#64748b',
-            font: { size: 11 },
-            callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(1)+'K' : v),
+            color: '#334155', font: { size: 11, family: 'Inter' },
+            callback: v => '$' + (v >= 1000 ? (v / 1000).toFixed(1) + 'K' : v),
           },
         },
       },
@@ -1287,9 +1188,9 @@ function renderDashChart(chart) {
   });
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    SALES FORECAST
-════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 function loadForecast() {
   const tbody = document.getElementById('forecast-tbody');
   tbody.innerHTML = '<tr><td colspan="6"><div class="loading-state"><span class="spinner"></span> Loading forecasts…</div></td></tr>';
@@ -1301,28 +1202,18 @@ function loadForecast() {
         <tr>
           <td class="td-product">${esc(p.product)}</td>
           <td class="td-num">${fmtFull$(p.last_30)}</td>
-          <td class="td-num" style="color:#a5b4fc;font-weight:600;">${fmtFull$(p.forecast_7)}</td>
-          <td>
-            <div class="td-locked">
-              <span class="lock-icon">🔒</span>
-              <span>Unlock in Pro</span>
-            </div>
-          </td>
-          <td>
-            <div class="td-locked">
-              <span class="lock-icon">🔒</span>
-              <span>Unlock in Pro</span>
-            </div>
-          </td>
-          <td class="${esc(p.trend_cls)}">${esc(p.trend)}</td>
+          <td class="td-num text-purple" style="font-weight:600;">${fmtFull$(p.forecast_7)}</td>
+          <td><div class="locked-cell">🔒 <span>Unlock in Pro</span></div></td>
+          <td><div class="locked-cell">🔒 <span>Unlock in Pro</span></div></td>
+          <td>${trendTag(p.trend_cls, p.trend)}</td>
         </tr>
       `).join('');
     });
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    PRODUCT PERFORMANCE
-════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 function loadProducts() {
   const tbody = document.getElementById('products-tbody');
   tbody.innerHTML = '<tr><td colspan="5"><div class="loading-state"><span class="spinner"></span> Loading products…</div></td></tr>';
@@ -1332,14 +1223,15 @@ function loadProducts() {
     .then(d => {
       const prods = d.products;
 
-      // Bar chart
       const ctx = document.getElementById('products-chart').getContext('2d');
       if (productsChart) { productsChart.destroy(); productsChart = null; }
 
-      const colors = prods.map((_, i) => {
-        const hues = [221, 240, 270, 200, 160, 190, 250, 210, 175, 230];
-        return `hsla(${hues[i % hues.length]}, 80%, 65%, 0.85)`;
-      });
+      const purples = [
+        'rgba(139,92,246,0.82)', 'rgba(124,58,237,0.82)', 'rgba(167,139,250,0.82)',
+        'rgba(236,72,153,0.82)', 'rgba(244,114,182,0.82)', 'rgba(196,181,253,0.82)',
+        'rgba(109,40,217,0.82)', 'rgba(249,168,212,0.82)', 'rgba(91,33,182,0.82)', 'rgba(232,121,249,0.82)',
+      ];
+      const colors = prods.map((_, i) => purples[i % purples.length]);
 
       productsChart = new Chart(ctx, {
         type: 'bar',
@@ -1349,83 +1241,68 @@ function loadProducts() {
             label: 'Revenue (90d)',
             data: prods.map(p => p.revenue),
             backgroundColor: colors,
-            borderColor: colors.map(c => c.replace('0.85', '1')),
-            borderWidth: 1,
-            borderRadius: 6,
+            borderColor: colors.map(c => c.replace('0.82', '1')),
+            borderWidth: 1, borderRadius: 6,
           }],
         },
         options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: '#1e293b',
-              borderColor: '#334155',
-              borderWidth: 1,
-              titleColor: '#f1f5f9',
-              bodyColor: '#94a3b8',
-              callbacks: {
-                label: ctx => '  Revenue: ' + fmtFull$(ctx.raw),
-              },
+              backgroundColor: 'rgba(6,8,16,0.95)',
+              borderColor: 'rgba(124,58,237,0.25)', borderWidth: 1,
+              titleColor: '#f8fafc', bodyColor: '#64748b',
+              callbacks: { label: ctx => '  Revenue: ' + fmtFull$(ctx.raw) },
             },
           },
           scales: {
             x: {
-              grid: { color: 'rgba(51,65,85,.4)' },
+              grid: { color: 'rgba(255,255,255,0.04)' },
               ticks: {
-                color: '#64748b',
-                font: { size: 11 },
-                callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0)+'K' : v),
+                color: '#334155', font: { size: 11, family: 'Inter' },
+                callback: v => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v),
               },
             },
             y: {
               grid: { display: false },
-              ticks: { color: '#94a3b8', font: { size: 12 } },
+              ticks: { color: '#94a3b8', font: { size: 12, family: 'Inter' } },
             },
           },
         },
       });
 
-      // Table
       tbody.innerHTML = prods.map((p, i) => `
         <tr>
           <td class="text-muted">${i + 1}</td>
           <td class="td-product">${esc(p.name)}</td>
           <td class="td-num">${p.units.toLocaleString()}</td>
-          <td class="td-num" style="color:#10b981;font-weight:600;">${fmtFull$(p.revenue)}</td>
+          <td class="td-num text-green" style="font-weight:600;">${fmtFull$(p.revenue)}</td>
           <td class="td-num">${fmtFull$(p.avg_order)}</td>
         </tr>
       `).join('');
     });
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    UPLOAD DATA
-════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 let uploadInitialized = false;
 
 function initUpload() {
   if (uploadInitialized) return;
   uploadInitialized = true;
 
-  const zone = document.getElementById('upload-zone');
+  const zone      = document.getElementById('upload-zone');
   const fileInput = document.getElementById('file-input');
 
   zone.addEventListener('click', () => fileInput.click());
-
-  zone.addEventListener('dragover', e => {
-    e.preventDefault();
-    zone.classList.add('drag-over');
-  });
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
   zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
   zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
+    e.preventDefault(); zone.classList.remove('drag-over');
     if (e.dataTransfer.files[0]) processUpload(e.dataTransfer.files[0]);
   });
-
   fileInput.addEventListener('change', () => {
     if (fileInput.files[0]) processUpload(fileInput.files[0]);
   });
@@ -1448,13 +1325,12 @@ function processUpload(file) {
         resultEl.innerHTML = `<h4>❌ Upload Failed</h4><p>${esc(d.error)}</p>`;
         return;
       }
-      let html = `<h4>✅ Processing Complete</h4>
-        <p>Rows processed: <strong>${d.processed}</strong></p>`;
+      let html = `<h4>✅ Processing Complete</h4><p>Rows processed: <strong>${d.processed}</strong></p>`;
       if (d.errors > 0) html += `<p>Rows skipped (format errors): ${d.errors}</p>`;
       if (d.was_limited) {
-        html += `<p style="color:#fcd34d;margin-top:10px;">⚠️ Your file had <strong>${d.total_in_file}</strong> rows — only the first 50 were processed. <a onclick="navigate('upgrade')" style="color:#3b82f6;text-decoration:underline;cursor:pointer;">Upgrade to Pro</a> for unlimited data processing.</p>`;
+        html += `<p style="color:#fbbf24;margin-top:10px;">⚠️ Your file had <strong>${d.total_in_file}</strong> rows — only the first 50 were processed. <a onclick="navigate('upgrade')" style="color:#a78bfa;text-decoration:underline;cursor:pointer;">Upgrade to Pro</a> for unlimited data processing.</p>`;
       } else {
-        html += `<p style="color:var(--muted);font-size:12px;margin-top:8px;">Analyzed ${d.processed} rows (limited to 50 in free demo). <a onclick="navigate('upgrade')" style="color:#3b82f6;text-decoration:underline;cursor:pointer;">Upgrade to Pro</a> for unlimited data processing.</p>`;
+        html += `<p style="color:var(--text-secondary);font-size:12px;margin-top:8px;">Analyzed ${d.processed} rows (limited to 50 in free demo). <a onclick="navigate('upgrade')" style="color:#a78bfa;text-decoration:underline;cursor:pointer;">Upgrade to Pro</a> for unlimited data processing.</p>`;
       }
       resultEl.innerHTML = html;
     })
@@ -1468,55 +1344,46 @@ function downloadTemplate() {
   window.location.href = '/api/download-template';
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    UPGRADE FORM
-════════════════════════════════════════════════ */
-function submitUpgrade() {
-  const btn  = document.getElementById('upgrade-submit-btn');
-  const errEl = document.getElementById('upgrade-form-error');
-  const name    = document.getElementById('uf-name').value.trim();
-  const email   = document.getElementById('uf-email').value.trim();
-  const company = document.getElementById('uf-company').value.trim();
-  const message = document.getElementById('uf-message').value.trim();
+═══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  const contactForm = document.querySelector('#contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn   = document.getElementById('upgrade-submit-btn');
+      const msgEl = document.getElementById('form-message');
+      btn.textContent = 'Sending…';
+      btn.disabled    = true;
+      msgEl.innerHTML = '';
 
-  errEl.style.display = 'none';
-  if (!name || !email || !company) {
-    errEl.textContent = 'Please fill in Name, Email, and Company.';
-    errEl.style.display = 'block';
-    return;
+      const formData = new FormData(this);
+      try {
+        const response = await fetch('/contact', { method: 'POST', body: formData });
+        const result   = await response.json();
+        if (result.success) {
+          document.getElementById('upgrade-form-body').style.display = 'none';
+          document.getElementById('upgrade-success').style.display   = 'block';
+        } else {
+          msgEl.innerHTML   = 'Something went wrong: ' + esc(result.error || 'Please try again.');
+          msgEl.style.color = '#f87171';
+          btn.textContent   = 'Request Demo Call →';
+          btn.disabled      = false;
+        }
+      } catch (err) {
+        msgEl.innerHTML   = 'Network error. Please try again.';
+        msgEl.style.color = '#f87171';
+        btn.textContent   = 'Request Demo Call →';
+        btn.disabled      = false;
+      }
+    });
   }
+});
 
-  btn.textContent = 'Sending…';
-  btn.disabled = true;
-
-  fetch('/api/upgrade', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email, company, message }),
-  })
-  .then(r => r.json())
-  .then(d => {
-    if (d.ok) {
-      document.getElementById('upgrade-form-body').style.display = 'none';
-      document.getElementById('upgrade-success').style.display   = 'block';
-    } else {
-      errEl.textContent = d.error || 'Something went wrong. Please try again.';
-      errEl.style.display = 'block';
-      btn.textContent = 'Request Demo Call →';
-      btn.disabled = false;
-    }
-  })
-  .catch(() => {
-    errEl.textContent = 'Network error. Please try again.';
-    errEl.style.display = 'block';
-    btn.textContent = 'Request Demo Call →';
-    btn.disabled = false;
-  });
-}
-
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    SECURITY HELPER
-════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 function esc(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -1525,9 +1392,9 @@ function esc(str) {
     .replace(/"/g, '&quot;');
 }
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    INIT
-════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 if (INIT_PAGE !== 'login') {
   navigate(INIT_PAGE);
 }

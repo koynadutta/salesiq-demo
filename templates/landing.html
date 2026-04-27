@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SalesIQ — AI Sales Intelligence for E-Commerce</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #060810;
+  --card: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.12);
+  --text: #f8fafc;
+  --muted: #64748b;
+  --purple: #7c3aed;
+  --purple-l: #8b5cf6;
+  --pink: #db2777;
+  --gradient: linear-gradient(135deg, #7c3aed, #db2777);
+  --glow: rgba(124,58,237,0.15);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.4); border-radius: 4px; }
+
+/* ── Animations ── */
+@keyframes heroReveal {
+  from { opacity: 0; transform: scale(0.72) translateY(48px); filter: blur(28px); }
+  to   { opacity: 1; transform: scale(1) translateY(0);      filter: blur(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(44px, -36px) scale(1.08); }
+  66%       { transform: translate(-28px, 22px) scale(0.93); }
+}
+@keyframes pulseRing {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
+  50%       { box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+}
+@keyframes scrollBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(8px); }
+}
+
+/* ══════════════════════════════════
+   NAVBAR
+══════════════════════════════════ */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 68px; background: rgba(6,8,16,0.7); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 48px;
+  transition: background 0.3s;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo-icon {
+  width: 34px; height: 34px; background: var(--gradient); border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 800; color: white; box-shadow: 0 0 16px rgba(124,58,237,0.4);
+}
+.nav-logo-name { font-size: 18px; font-weight: 800; }
+.nav-links { display: flex; align-items: center; gap: 36px; }
+.nav-link { font-size: 14px; font-weight: 500; color: var(--muted); transition: color 0.2s; }
+.nav-link:hover { color: var(--text); }
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+.btn-ghost {
+  font-size: 14px; font-weight: 600; color: var(--muted);
+  padding: 8px 18px; border-radius: 8px; transition: all 0.2s; border: 1px solid transparent;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border); background: var(--card); }
+.btn-nav-cta {
+  background: var(--gradient); color: white;
+  padding: 9px 22px; border-radius: 100px; font-size: 14px; font-weight: 600;
+  transition: all 0.2s; box-shadow: 0 0 20px rgba(124,58,237,0.3);
+}
+.btn-nav-cta:hover { box-shadow: 0 0 32px rgba(124,58,237,0.5); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   HERO
+══════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; position: relative; overflow: hidden; padding: 120px 24px 100px;
+}
+.hero-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(124,58,237,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 30%, transparent 100%);
+}
+.orb {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  filter: blur(90px); animation: floatOrb ease-in-out infinite;
+}
+.orb-1 { width: 750px; height: 750px; background: rgba(124,58,237,0.11); top: -220px; left: -180px; animation-duration: 13s; }
+.orb-2 { width: 650px; height: 650px; background: rgba(219,39,119,0.08); bottom: -200px; right: -160px; animation-duration: 15s; animation-delay: -6s; }
+.orb-3 { width: 450px; height: 450px; background: rgba(124,58,237,0.07); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-duration: 11s; animation-delay: -9s; }
+
+.hero-content { position: relative; z-index: 1; max-width: 960px; width: 100%; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25);
+  color: #a78bfa; font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+  padding: 8px 20px; border-radius: 100px; margin-bottom: 36px;
+  animation: fadeUp 0.6s ease 0.2s both;
+}
+.badge-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; animation: pulseRing 2s infinite; flex-shrink: 0; }
+
+.hero-title {
+  font-size: clamp(80px, 15vw, 164px);
+  font-weight: 900; letter-spacing: -6px; line-height: 0.88;
+  background: linear-gradient(135deg, #ffffff 15%, #c4b5fd 50%, #f9a8d4 85%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: heroReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+  margin-bottom: 28px;
+}
+.hero-tagline {
+  font-size: clamp(18px, 3vw, 28px); font-weight: 600; letter-spacing: -0.5px;
+  color: rgba(248,250,252,0.72); margin-bottom: 18px;
+  animation: fadeUp 0.7s ease 1.05s both;
+}
+.hero-desc {
+  font-size: 17px; color: var(--muted); line-height: 1.75;
+  max-width: 540px; margin: 0 auto 44px;
+  animation: fadeUp 0.7s ease 1.25s both;
+}
+.hero-actions {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  flex-wrap: wrap; margin-bottom: 72px;
+  animation: fadeUp 0.7s ease 1.45s both;
+}
+.btn-hero-primary {
+  background: var(--gradient); color: white;
+  padding: 16px 38px; border-radius: 100px; font-size: 16px; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: 0 0 32px rgba(124,58,237,0.4); transition: all 0.2s;
+}
+.btn-hero-primary:hover { box-shadow: 0 0 52px rgba(124,58,237,0.65); transform: translateY(-2px); }
+.btn-hero-outline {
+  border: 1px solid var(--border-hover); color: var(--muted);
+  padding: 16px 38px; border-radius: 100px; font-size: 16px; font-weight: 600;
+  background: transparent; transition: all 0.2s;
+}
+.btn-hero-outline:hover { border-color: rgba(124,58,237,0.5); color: var(--text); background: rgba(124,58,237,0.06); }
+
+.hero-stats {
+  display: inline-flex; align-items: stretch;
+  background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+  overflow: hidden; animation: fadeUp 0.7s ease 1.65s both;
+}
+.hero-stat { padding: 20px 32px; text-align: center; }
+.hero-stat + .hero-stat { border-left: 1px solid var(--border); }
+.hero-stat-val {
+  font-size: 30px; font-weight: 900; letter-spacing: -1px;
+  background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1;
+}
+.hero-stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 4px; white-space: nowrap; }
+
+.scroll-indicator {
+  position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  animation: fadeUp 0.7s ease 2s both;
+}
+.scroll-arrow { animation: scrollBob 2s ease-in-out infinite; }
+
+/* ══════════════════════════════════
+   SHARED SECTION STYLES
+══════════════════════════════════ */
+.section { padding: 108px 48px; }
+.section-inner { max-width: 1200px; margin: 0 auto; }
+.section-head { margin-bottom: 72px; }
+.section-head.center { text-align: center; }
+.section-head.center .section-desc { margin: 0 auto; }
+.section-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--purple-l); display: block; margin-bottom: 14px;
+}
+.section-title {
+  font-size: clamp(34px, 5vw, 54px); font-weight: 900; letter-spacing: -2px;
+  line-height: 1.08; color: var(--text); margin-bottom: 16px;
+}
+.section-desc { font-size: 17px; color: var(--muted); line-height: 1.75; max-width: 560px; }
+.grad { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* Reveal on scroll */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: 0.08s; }
+.d2 { transition-delay: 0.16s; }
+.d3 { transition-delay: 0.24s; }
+.d4 { transition-delay: 0.32s; }
+.d5 { transition-delay: 0.40s; }
+.d6 { transition-delay: 0.48s; }
+
+/* ══════════════════════════════════
+   FEATURES
+══════════════════════════════════ */
+#features { background: linear-gradient(to bottom, var(--bg), #080c18); }
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.feat-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  padding: 28px; transition: all 0.3s;
+}
+.feat-card:hover {
+  border-color: var(--border-hover); transform: translateY(-5px);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.1);
+}
+.feat-icon {
+  width: 50px; height: 50px; border-radius: 14px;
+  background: linear-gradient(135deg, rgba(124,58,237,0.14), rgba(219,39,119,0.09));
+  border: 1px solid rgba(124,58,237,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 16px;
+}
+.feat-pill {
+  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 100px; margin-bottom: 12px;
+}
+.pill-free { background: rgba(74,222,128,0.1);  color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+.pill-pro  { background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); }
+.feat-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.feat-desc  { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+/* ══════════════════════════════════
+   HOW IT WORKS
+══════════════════════════════════ */
+#how { background: #080c18; }
+.steps-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; position: relative; }
+.steps-row::before {
+  content: '';
+  position: absolute; top: 31px; left: calc(50% / 3 + 32px); right: calc(50% / 3 + 32px);
+  height: 1px; background: linear-gradient(90deg, transparent, rgba(124,58,237,0.4), rgba(219,39,119,0.4), transparent);
+}
+.step { text-align: center; padding: 8px 16px; }
+.step-badge {
+  width: 64px; height: 64px; margin: 0 auto 22px; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(219,39,119,0.12));
+  border: 1px solid rgba(124,58,237,0.25); box-shadow: 0 0 32px rgba(124,58,237,0.12);
+  display: flex; align-items: center; justify-content: center;
+}
+.step-num-text {
+  font-size: 22px; font-weight: 900; letter-spacing: -1px;
+  background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.step-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+.step-desc  { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+/* ══════════════════════════════════
+   PRICING
+══════════════════════════════════ */
+#pricing { background: linear-gradient(to bottom, #080c18, var(--bg)); }
+.pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 880px; margin: 0 auto; }
+.pricing-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 36px;
+  transition: all 0.3s;
+}
+.pricing-card:hover { transform: translateY(-4px); }
+.pricing-card.featured {
+  border-color: rgba(124,58,237,0.3); box-shadow: 0 0 60px rgba(124,58,237,0.1);
+  background: linear-gradient(135deg, rgba(124,58,237,0.07), rgba(219,39,119,0.04));
+}
+.pricing-card.featured:hover { box-shadow: 0 24px 64px rgba(124,58,237,0.2); }
+.plan-eyebrow {
+  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 4px 12px; border-radius: 100px; margin-bottom: 18px;
+}
+.plan-eyebrow.free { background: rgba(100,116,139,0.1); color: #64748b; border: 1px solid rgba(100,116,139,0.2); }
+.plan-eyebrow.pro  { background: rgba(124,58,237,0.12); color: #a78bfa; border: 1px solid rgba(124,58,237,0.28); }
+.plan-name  { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.plan-price { font-size: 52px; font-weight: 900; letter-spacing: -2px; line-height: 1; margin-bottom: 6px; }
+.plan-price.free-price { color: #64748b; }
+.plan-price.pro-price  { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.plan-cycle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.plan-divider { height: 1px; background: var(--border); margin: 24px 0; }
+.plan-items { list-style: none; display: flex; flex-direction: column; gap: 13px; margin-bottom: 32px; }
+.plan-item { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; }
+.plan-item .ck  { flex-shrink: 0; margin-top: 1px; font-size: 13px; }
+.ck-on  { color: #4ade80; }
+.ck-off { color: var(--muted); }
+.plan-item .item-text { color: var(--text); }
+.plan-item .item-text.off { color: var(--muted); }
+.btn-plan {
+  display: block; width: 100%; padding: 14px; border-radius: 12px; text-align: center;
+  font-size: 15px; font-weight: 600; transition: all 0.2s;
+}
+.btn-plan.outline { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+.btn-plan.outline:hover { border-color: var(--border-hover); color: var(--text); }
+.btn-plan.filled  { background: var(--gradient); color: white; box-shadow: 0 4px 20px rgba(124,58,237,0.3); }
+.btn-plan.filled:hover { box-shadow: 0 4px 32px rgba(124,58,237,0.5); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   FINAL CTA
+══════════════════════════════════ */
+.cta-band { padding: 120px 48px; text-align: center; position: relative; overflow: hidden; }
+.cta-glow {
+  position: absolute; width: 900px; height: 500px;
+  background: radial-gradient(ellipse, rgba(124,58,237,0.12) 0%, transparent 70%);
+  top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
+}
+.cta-title {
+  font-size: clamp(38px, 6vw, 68px); font-weight: 900; letter-spacing: -2.5px;
+  line-height: 1.08; color: var(--text); margin-bottom: 18px;
+}
+.cta-desc { font-size: 18px; color: var(--muted); margin-bottom: 44px; max-width: 440px; margin-left: auto; margin-right: auto; }
+.cta-actions { display: flex; align-items: center; justify-content: center; gap: 14px; }
+
+/* ══════════════════════════════════
+   FOOTER
+══════════════════════════════════ */
+footer {
+  border-top: 1px solid var(--border); background: #060810;
+  padding: 32px 48px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+}
+.footer-brand { display: flex; align-items: center; gap: 10px; }
+.footer-icon {
+  width: 28px; height: 28px; background: var(--gradient); border-radius: 7px;
+  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white;
+}
+.footer-name { font-size: 15px; font-weight: 800; }
+.footer-sub  { font-size: 12px; color: var(--muted); margin-left: 4px; }
+.footer-links { display: flex; gap: 24px; }
+.footer-lnk { font-size: 13px; color: var(--muted); transition: color 0.2s; }
+.footer-lnk:hover { color: var(--text); }
+.footer-copy { font-size: 12px; color: var(--muted); }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .nav-links { display: none; }
+  .navbar { padding: 0 24px; }
+}
+@media (max-width: 768px) {
+  .section { padding: 72px 24px; }
+  .steps-row { grid-template-columns: 1fr; }
+  .steps-row::before { display: none; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 480px; }
+  .cta-band { padding: 80px 24px; }
+  footer { padding: 28px 24px; flex-direction: column; text-align: center; }
+  .footer-links { justify-content: center; }
+  .hero-stats { flex-direction: column; border-radius: 14px; }
+  .hero-stat + .hero-stat { border-left: none; border-top: 1px solid var(--border); }
+}
+@media (max-width: 580px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; width: 100%; max-width: 340px; }
+  .btn-hero-primary, .btn-hero-outline { width: 100%; justify-content: center; }
+  .cta-actions { flex-direction: column; width: 100%; max-width: 320px; margin: 0 auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo">
+    <div class="nav-logo-icon">S</div>
+    <span class="nav-logo-name">SalesIQ.</span>
+  </div>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#how" class="nav-link">How It Works</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+  </div>
+  <div class="nav-actions">
+    <a href="/dashboard" class="btn-ghost">Log In</a>
+    <a href="/dashboard" class="btn-nav-cta">Try Free Demo →</a>
+  </div>
+</nav>
+
+<!-- ══════ HERO ══════ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      AI-Powered &nbsp;·&nbsp; Free Demo Available
+    </div>
+
+    <h1 class="hero-title">SalesIQ.</h1>
+
+    <p class="hero-tagline">AI Sales Intelligence for E-Commerce</p>
+    <p class="hero-desc">Stop guessing. Start knowing. Forecast revenue, track product performance, and understand your customers — powered by AI built for Shopify stores.</p>
+
+    <div class="hero-actions">
+      <a href="/dashboard" class="btn-hero-primary">Start Free Demo →</a>
+      <a href="#features" class="btn-hero-outline">See Features ↓</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val">3,655+</div>
+        <div class="hero-stat-label">Data Points</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">10</div>
+        <div class="hero-stat-label">Products Tracked</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">90d</div>
+        <div class="hero-stat-label">History Window</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">Real AI</div>
+        <div class="hero-stat-label">Forecasting</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-arrow">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+    SCROLL
+  </div>
+</section>
+
+<!-- ══════ FEATURES ══════ -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">Features</span>
+      <h2 class="section-title">Everything you need to<br><span class="grad">forecast smarter</span></h2>
+      <p class="section-desc">From real-time dashboards to AI-powered predictions — all the tools your e-commerce store needs in one place.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feat-card reveal d1">
+        <div class="feat-icon">📈</div>
+        <span class="feat-pill pill-free">FREE</span>
+        <div class="feat-title">AI Sales Forecasting</div>
+        <div class="feat-desc">Predict your next 7 days of revenue with machine learning. See which products are rising and plan inventory ahead of demand.</div>
+      </div>
+      <div class="feat-card reveal d2">
+        <div class="feat-icon">📦</div>
+        <span class="feat-pill pill-free">FREE</span>
+        <div class="feat-title">Product Performance</div>
+        <div class="feat-desc">Track revenue, units sold, and average order value for your top 10 products over the last 90 days. Know your winners instantly.</div>
+      </div>
+      <div class="feat-card reveal d3">
+        <div class="feat-icon">🗂️</div>
+        <span class="feat-pill pill-free">FREE</span>
+        <div class="feat-title">Live Dashboard</div>
+        <div class="feat-desc">Total revenue, predicted revenue, best product, and daily averages at a glance. Your business vitals, always front and center.</div>
+      </div>
+      <div class="feat-card reveal d4">
+        <div class="feat-icon">👥</div>
+        <span class="feat-pill pill-pro">PRO</span>
+        <div class="feat-title">Customer LTV Analysis</div>
+        <div class="feat-desc">Segment customers by value, predict 12-month lifetime revenue, and flag churn risk before customers leave. RFM scoring included.</div>
+      </div>
+      <div class="feat-card reveal d5">
+        <div class="feat-icon">🔌</div>
+        <span class="feat-pill pill-pro">PRO</span>
+        <div class="feat-title">Shopify Integration</div>
+        <div class="feat-desc">Connect your store and sync orders automatically every 24 hours. Your team wakes up to fresh forecasts every morning — zero manual work.</div>
+      </div>
+      <div class="feat-card reveal d6">
+        <div class="feat-icon">🔔</div>
+        <span class="feat-pill pill-pro">PRO</span>
+        <div class="feat-title">Smart Alerts</div>
+        <div class="feat-desc">Get email notifications the moment a product starts declining. React in hours, not weeks. Catch problems before they hit revenue.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ HOW IT WORKS ══════ -->
+<section class="section" id="how">
+  <div class="section-inner">
+    <div class="section-head center reveal">
+      <span class="section-eyebrow">How It Works</span>
+      <h2 class="section-title">Up and running in <span class="grad">minutes</span></h2>
+      <p class="section-desc">No complicated setup. No data science degree required. Just connect your data and let the AI do the rest.</p>
+    </div>
+
+    <div class="steps-row">
+      <div class="step reveal d1">
+        <div class="step-badge"><span class="step-num-text">01</span></div>
+        <div class="step-title">Connect Your Data</div>
+        <div class="step-desc">Upload a CSV of your sales history or connect your Shopify store directly. The free demo includes 90 days of sample data so you can explore instantly.</div>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-badge"><span class="step-num-text">02</span></div>
+        <div class="step-title">AI Analyzes Everything</div>
+        <div class="step-desc">Our forecasting engine runs regression and exponential smoothing on your data to generate accurate, product-level revenue predictions automatically.</div>
+      </div>
+      <div class="step reveal d3">
+        <div class="step-badge"><span class="step-num-text">03</span></div>
+        <div class="step-title">Make Better Decisions</div>
+        <div class="step-desc">Order the right inventory, double down on growing products, and identify at-risk customers — all backed by data, not guesswork.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ PRICING ══════ -->
+<section class="section" id="pricing">
+  <div class="section-inner">
+    <div class="section-head center reveal">
+      <span class="section-eyebrow">Pricing</span>
+      <h2 class="section-title">Start free. <span class="grad">Scale when ready.</span></h2>
+      <p class="section-desc">Try the full demo — no credit card needed. Upgrade to Pro when you're ready to unlock the full power of SalesIQ.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-card reveal d1">
+        <span class="plan-eyebrow free">FREE DEMO</span>
+        <div class="plan-name">Free Demo</div>
+        <div class="plan-price free-price">$0</div>
+        <div class="plan-cycle">No credit card required</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-items">
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Live sales dashboard</span></li>
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">7-day AI sales forecast</span></li>
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Product performance (top 10)</span></li>
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">CSV upload (50 rows)</span></li>
+          <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">14-day &amp; 30-day forecasts</span></li>
+          <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">Customer LTV analysis</span></li>
+          <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">Shopify integration</span></li>
+        </ul>
+        <a href="/dashboard" class="btn-plan outline">Try Free Demo</a>
+      </div>
+
+      <div class="pricing-card featured reveal d2">
+        <span class="plan-eyebrow pro">PRO PLAN</span>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price pro-price">$1,999</div>
+        <div class="plan-cycle">/month · Cancel anytime</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-items">
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Everything in Free Demo</span></li>
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">14-day &amp; 30-day forecasts</span></li>
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Customer Lifetime Value (LTV)</span></li>
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Shopify auto-sync (daily)</span></li>
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Unlimited data processing</span></li>
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Email alerts &amp; cohort analysis</span></li>
+          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Priority support &amp; onboarding</span></li>
+        </ul>
+        <a href="/dashboard" class="btn-plan filled">Request a Demo Call →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ CTA ══════ -->
+<section class="cta-band">
+  <div class="cta-glow"></div>
+  <div class="reveal" style="position:relative;z-index:1;">
+    <h2 class="cta-title">Ready to stop guessing?<br><span class="grad">Start forecasting.</span></h2>
+    <p class="cta-desc">Join the free demo today. No setup, no credit card, no commitment.</p>
+    <div class="cta-actions">
+      <a href="/dashboard" class="btn-hero-primary">Start Free Demo →</a>
+      <a href="#features" class="btn-hero-outline">See Features</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
+<footer>
+  <div class="footer-brand">
+    <div class="footer-icon">S</div>
+    <span class="footer-name">SalesIQ.</span>
+    <span class="footer-sub">AI Sales Intelligence</span>
+  </div>
+  <div class="footer-links">
+    <a href="/dashboard" class="footer-lnk">Log In</a>
+    <a href="/dashboard" class="footer-lnk">Free Demo</a>
+    <a href="#features" class="footer-lnk">Features</a>
+    <a href="#pricing" class="footer-lnk">Pricing</a>
+  </div>
+  <span class="footer-copy">© 2025 SalesIQ</span>
+</footer>
+
+<script>
+// Scroll reveal with IntersectionObserver
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// Smooth anchor scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+
+// Navbar solidifies on scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').style.background =
+    window.scrollY > 50 ? 'rgba(6,8,16,0.96)' : 'rgba(6,8,16,0.7)';
+}, { passive: true });
+</script>
+</body>
+</html>
