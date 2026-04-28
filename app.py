@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, make_response
-from flask_mail import Mail, Message
+import resend
 import sqlite3
 import os
 import random
@@ -10,15 +10,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "salesiq-demo-secret-2024-xyz-secure")
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-# ── Flask-Mail ────────────────────────────────────────────────────────────────
-app.config['MAIL_SERVER']         = 'smtp.gmail.com'
-app.config['MAIL_PORT']           = 587
-app.config['MAIL_USE_TLS']        = True
-app.config['MAIL_USE_SSL']        = False
-app.config['MAIL_USERNAME']       = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD']       = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
-mail = Mail(app)
+resend.api_key = os.environ.get('RESEND_API_KEY')
 
 DB_PATH = os.environ.get("DB_PATH", "salesiq.db")
 
@@ -436,25 +428,21 @@ def contact():
     conn.commit()
     conn.close()
 
-    # Send email only if credentials are configured
-    if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
-        try:
-            msg = Message(
-                subject=f'New SalesIQ Pro Inquiry — {name}',
-                sender=app.config['MAIL_USERNAME'],
-                recipients=['koynaduttaxox05@gmail.com'],
-                body=(
-                    f"New SalesIQ Pro Inquiry\n{'='*40}\n\n"
-                    f"Name:    {name}\n"
-                    f"Email:   {email}\n"
-                    f"Company: {company}\n\n"
-                    f"Message:\n{message or '(none provided)'}\n\n"
-                    f"{'='*40}\nSent from SalesIQ contact form\n"
-                ),
-            )
-            mail.send(msg)
-        except Exception as e:
-            print(f"Email error: {str(e)}")
+    try:
+        resend.Emails.send({
+            "from": "SalesIQ <onboarding@resend.dev>",
+            "to": ["koynaduttaxox05@gmail.com"],
+            "subject": f"New SalesIQ Pro Inquiry — {name}",
+            "html": f"""
+                <h2>New inquiry from SalesIQ</h2>
+                <p><strong>Name:</strong> {name}</p>
+                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Company:</strong> {company}</p>
+                <p><strong>Message:</strong> {message or '(none provided)'}</p>
+            """,
+        })
+    except Exception as e:
+        print(f"Email error: {e}")
 
     return jsonify({'success': True})
 
@@ -479,25 +467,20 @@ def api_upgrade():
     conn.close()
 
     try:
-        if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
-            msg = Message(
-                subject=f"New SalesIQ Pro Inquiry — {name}",
-                sender=app.config['MAIL_USERNAME'],
-                recipients=['koynaduttaxox05@gmail.com'],
-            )
-            msg.body = (
-                f"New SalesIQ Pro Inquiry\n"
-                f"{'='*40}\n\n"
-                f"Name:    {name}\n"
-                f"Email:   {email}\n"
-                f"Company: {company}\n\n"
-                f"Message:\n{message or '(none provided)'}\n\n"
-                f"{'='*40}\n"
-                f"Submitted via SalesIQ Demo\n"
-            )
-            mail.send(msg)
-    except Exception:
-        pass
+        resend.Emails.send({
+            "from": "SalesIQ <onboarding@resend.dev>",
+            "to": ["koynaduttaxox05@gmail.com"],
+            "subject": f"New SalesIQ Pro Inquiry — {name}",
+            "html": f"""
+                <h2>New inquiry from SalesIQ</h2>
+                <p><strong>Name:</strong> {name}</p>
+                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Company:</strong> {company}</p>
+                <p><strong>Message:</strong> {message or '(none provided)'}</p>
+            """,
+        })
+    except Exception as e:
+        print(f"Email error: {e}")
 
     return jsonify({"ok": True})
 

@@ -25,7 +25,10 @@
       "Bash(curl -s http://127.0.0.1:5000/)",
       "Bash(netstat -ano)",
       "Bash(taskkill /F /PID 24224 /PID 12300 /PID 24912 /PID 21004 /PID 20948 /PID 7848)",
-      "PowerShell(Get-NetTCPConnection *)"
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell($env:RESEND_API_KEY = \"re_K1YFiMY8_EZcNa9R6iemFNdwki5GTG9Ws\"; Write-Host \"API key set\")",
+      "PowerShell($env:RESEND_API_KEY = \"re_K1YFiMY8_EZcNa9R6iemFNdwki5GTG9Ws\"; cd \"C:\\\\Users\\\\KIIT0001\\\\Desktop\\\\salesiq-demo\"; Start-Process python -ArgumentList \"app.py\" -NoNewWindow -PassThru | Select-Object Id)",
+      "PowerShell(Start-Sleep -Seconds 3; \\(Invoke-WebRequest -Uri \"http://127.0.0.1:5000/\" -UseBasicParsing\\).StatusCode)"
     ]
   }
 }
