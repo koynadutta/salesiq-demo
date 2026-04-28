@@ -11,7 +11,21 @@
       "Bash(curl -s -o /dev/null -w \"%{redirect_url}\" http://localhost:5000/dashboard)",
       "Bash(kill %1)",
       "Bash(taskkill /F /IM python.exe)",
-      "PowerShell(Stop-Process *)"
+      "PowerShell(Stop-Process *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "PowerShell($env:MAIL_USERNAME = \"koynaduttaxox05@gmail.com\"; Write-Output \"MAIL_USERNAME set to: $env:MAIL_USERNAME\")",
+      "PowerShell($env:MAIL_PASSWORD = \"colesprouse21\"; Write-Output \"MAIL_PASSWORD set.\")",
+      "Bash(tasklist)",
+      "Bash(findstr python *)",
+      "Bash(taskkill /F /IM python.exe /T)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(pkill -f \"python app.py\")",
+      "Bash(curl -s http://127.0.0.1:5000/)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /F /PID 24224 /PID 12300 /PID 24912 /PID 21004 /PID 20948 /PID 7848)",
+      "PowerShell(Get-NetTCPConnection *)"
     ]
   }
 }

@@ -8,6 +8,7 @@ from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "salesiq-demo-secret-2024-xyz-secure")
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # ── Flask-Mail ────────────────────────────────────────────────────────────────
 app.config['MAIL_SERVER']         = 'smtp.gmail.com'
@@ -499,6 +500,50 @@ def api_upgrade():
         pass
 
     return jsonify({"ok": True})
+
+
+@app.route('/admin/requests')
+def admin_requests():
+    key = request.args.get('key', '')
+    if key != 'salesiq-admin':
+        return '<h3 style="font-family:sans-serif;padding:40px;">Unauthorized — add <code>?key=salesiq-admin</code> to the URL.</h3>', 401
+
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT * FROM upgrade_requests ORDER BY created_at DESC"
+    ).fetchall()
+    conn.close()
+
+    rows_html = ''.join(f'''
+    <tr>
+      <td>{r["id"]}</td>
+      <td>{r["name"]}</td>
+      <td><a href="mailto:{r["email"]}" style="color:#a78bfa">{r["email"]}</a></td>
+      <td>{r["company"] or "—"}</td>
+      <td style="max-width:300px;word-break:break-word">{r["message"] or "—"}</td>
+      <td style="white-space:nowrap">{r["created_at"][:16]}</td>
+    </tr>''' for r in rows)
+
+    return f'''<!DOCTYPE html>
+<html><head><title>Demo Requests — Admin</title>
+<style>
+  body{{font-family:Inter,sans-serif;background:#060810;color:#f8fafc;padding:40px;margin:0}}
+  h1{{font-size:28px;font-weight:800;margin-bottom:8px}}
+  .sub{{color:#64748b;margin-bottom:32px;font-size:14px}}
+  table{{width:100%;border-collapse:collapse;font-size:14px}}
+  th{{background:rgba(124,58,237,0.2);padding:12px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#a78bfa}}
+  td{{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:top}}
+  tr:hover td{{background:rgba(255,255,255,0.03)}}
+  .empty{{text-align:center;padding:60px;color:#64748b}}
+</style></head>
+<body>
+  <h1>Demo Call Requests</h1>
+  <p class="sub">{len(rows)} submission{"s" if len(rows)!=1 else ""} total</p>
+  <table>
+    <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Company</th><th>Message</th><th>Submitted</th></tr></thead>
+    <tbody>{"".join(rows_html) if rows else '<tr><td colspan="6" class="empty">No submissions yet.</td></tr>'}</tbody>
+  </table>
+</body></html>'''
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
