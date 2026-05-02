@@ -444,23 +444,23 @@ textarea.form-input { resize: vertical; min-height: 100px; }
 .btn-outline:hover { border-color: var(--purple-light); color: var(--purple-light); }
 
 /* ── Upgrade page ── */
-.upgrade-hero { text-align: center; padding: 60px 32px 48px; position: relative; }
+.upgrade-hero { text-align: center; padding: 52px 32px 40px; position: relative; }
 .upgrade-hero-glow {
   position: absolute; width: 800px; height: 400px;
   background: radial-gradient(ellipse, rgba(124,58,237,0.1) 0%, transparent 70%);
   top: 0; left: 50%; transform: translateX(-50%); pointer-events: none;
 }
 .upgrade-label {
-  font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--purple-light);
-  background: var(--purple-glow); border: 1px solid rgba(124,58,237,0.2);
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: #fbbf24; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);
   padding: 5px 16px; border-radius: 100px; display: inline-block; margin-bottom: 20px;
 }
-.upgrade-title { font-size: 52px; font-weight: 800; line-height: 1.15; margin-bottom: 16px; color: var(--text-primary); }
+.upgrade-title { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 12px; color: var(--text-primary); }
 .gradient-text {
   background: var(--gradient);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.upgrade-subtitle { font-size: 16px; color: var(--text-secondary); max-width: 500px; margin: 0 auto; line-height: 1.7; }
+.upgrade-subtitle { font-size: 15px; color: var(--text-secondary); max-width: 480px; margin: 0 auto; line-height: 1.7; }
 .upgrade-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
   padding: 0 32px 48px; max-width: 1100px; margin: 0 auto;
@@ -469,22 +469,32 @@ textarea.form-input { resize: vertical; min-height: 100px; }
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: 20px; padding: 32px; animation: fadeInUp 0.4s ease both;
 }
+.features-card {
+  border-color: rgba(124,58,237,0.25);
+  box-shadow: 0 0 48px rgba(124,58,237,0.08);
+}
 .features-title { font-size: 18px; font-weight: 700; margin-bottom: 24px; color: var(--text-primary); }
-.feature-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.feature-row { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .feature-row:last-of-type { border-bottom: none; }
 .feature-check {
-  width: 22px; height: 22px; background: var(--gradient); border-radius: 50%;
+  width: 20px; height: 20px; background: var(--gradient); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px; font-size: 11px; color: white;
+  flex-shrink: 0; margin-top: 1px; font-size: 10px; color: white;
 }
 .feature-text { font-size: 14px; color: var(--text-primary); font-weight: 500; }
-.price-block { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--border); }
+.price-block { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
 .price-amount {
   font-size: 56px; font-weight: 900;
   background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.price-period { font-size: 20px; color: var(--text-secondary); font-weight: 400; }
-.price-note { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+.price-period { font-size: 18px; color: var(--text-secondary); font-weight: 400; }
+.price-note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.price-old { font-size: 13px; color: #f87171; text-decoration: line-through; margin-top: 6px; font-weight: 500; }
+.urgency-box {
+  background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.18);
+  border-radius: 12px; padding: 12px 16px; font-size: 13px;
+  color: #fbbf24; line-height: 1.6; margin-top: 18px; font-weight: 500;
+}
 .contact-card h3 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
 .contact-card > p { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
 .form-submit {
@@ -898,61 +908,62 @@ textarea.form-input { resize: vertical; min-height: 100px; }
         <div id="page-upgrade" class="page">
           <div class="upgrade-hero">
             <div class="upgrade-hero-glow"></div>
-            <span class="upgrade-label">PRO PLAN</span>
-            <h1 class="upgrade-title">Unlock the Full<br><span class="gradient-text">Power of SalesIQ</span></h1>
-            <p class="upgrade-subtitle">Everything in the free demo, plus unlimited data, longer forecasts, real integrations, and features your team will rely on every day.</p>
+            <span class="upgrade-label">⚡ BETA FOUNDER</span>
+            <h1 class="upgrade-title">Pro — <span class="gradient-text">Beta Pricing</span></h1>
+            <p class="upgrade-subtitle">5 founder spots only. Lock in the lowest price SalesIQ will ever be — before it goes to $1,999/month.</p>
           </div>
 
           <div class="upgrade-grid">
             <div class="features-card">
-              <h3 class="features-title">What's Included</h3>
-              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Unlimited data processing (no 50-row cap)</span></div>
-              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">14-day and 30-day sales forecasts</span></div>
-              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Customer Lifetime Value analysis</span></div>
-              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Shopify integration (auto-sync daily)</span></div>
-              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Email alerts for declining products</span></div>
-              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">White-label with your company branding</span></div>
+              <h3 class="features-title">Everything in Free Trial, plus:</h3>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">14-day &amp; 30-day sales forecasts</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Customer Lifetime Value (LTV) analysis</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Shopify auto-sync (updates daily)</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Unlimited data &amp; products</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Email alerts when products decline</span></div>
               <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Priority support &amp; onboarding call</span></div>
               <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Advanced cohort &amp; RFM analysis</span></div>
+              <div class="feature-row"><span class="feature-check">✓</span><span class="feature-text">Price locked for life at $299/month</span></div>
               <div class="price-block">
-                <span class="price-amount">$1,999</span><span class="price-period">/month</span>
-                <p class="price-note">Billed monthly · Cancel anytime</p>
+                <span class="price-amount">$299</span><span class="price-period">/month</span>
+                <p class="price-note">Cancel anytime · No contracts</p>
+                <p class="price-old">Increases to $1,999/month after beta</p>
               </div>
-              <div class="roi-box">
-                💬 Most customers see a <strong>positive ROI within 60 days</strong> from improved inventory decisions and reduced stockouts.
+              <div class="urgency-box">
+                ⚡ Only 5 founder spots available at this price. Once they're gone, the rate goes to $1,999/month permanently.
               </div>
             </div>
 
             <div class="contact-card">
-              <h3>Request a Demo Call</h3>
-              <p>See the Pro version live with your actual store data.</p>
+              <h3>Claim Your Founder Spot</h3>
+              <p>We'll walk you through SalesIQ live with your store data — 20 minutes, no pressure.</p>
               <div id="upgrade-form-body">
                 <form id="contact-form">
                   <div class="form-group">
                     <label class="form-label">Your Name *</label>
-                    <input id="uf-name" name="name" class="form-input" type="text" placeholder="Jane Smith" />
+                    <input id="uf-name" name="name" class="form-input" type="text" placeholder="Jane Smith" required />
                   </div>
                   <div class="form-group">
                     <label class="form-label">Work Email *</label>
-                    <input id="uf-email" name="email" class="form-input" type="email" placeholder="jane@company.com" />
+                    <input id="uf-email" name="email" class="form-input" type="email" placeholder="jane@company.com" required />
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Company *</label>
-                    <input id="uf-company" name="company" class="form-input" type="text" placeholder="Acme Sports" />
+                    <label class="form-label">Store / Company *</label>
+                    <input id="uf-company" name="company" class="form-input" type="text" placeholder="Acme Sports" required />
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Message (optional)</label>
+                    <label class="form-label">Message <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
                     <textarea id="uf-message" name="message" class="form-input" rows="3" placeholder="Tell us about your store size, current tools, or any questions…"></textarea>
                   </div>
                   <div id="upgrade-form-error" class="upgrade-form-error"></div>
-                  <button class="form-submit" id="upgrade-submit-btn" type="submit">Request Demo Call →</button>
+                  <button class="form-submit" id="upgrade-submit-btn" type="submit">Claim Founder Spot — $299/mo →</button>
                   <div id="form-message" style="margin-top:14px;font-size:13.5px;font-weight:600;"></div>
                 </form>
               </div>
               <div id="upgrade-success" class="form-success">
                 <div class="s-icon">🎉</div>
-                <h3>Message sent!</h3>
-                <div class="form-success-bar">✓ We'll be in touch within 24 hours.</div>
+                <h3>You're in!</h3>
+                <div class="form-success-bar">✓ We'll reach out within 24 hours to book your call.</div>
                 <p style="margin-top:14px;">Our team typically responds within a few hours during business days.</p>
               </div>
             </div>
@@ -1369,7 +1380,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           msgEl.innerHTML   = 'Something went wrong: ' + esc(result.error || 'Please try again.');
           msgEl.style.color = '#f87171';
-          btn.textContent   = 'Request Demo Call →';
+          btn.textContent   = 'Claim Founder Spot — $299/mo →';
           btn.disabled      = false;
         }
       } catch (err) {

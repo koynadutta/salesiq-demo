@@ -416,7 +416,7 @@ def contact():
     company = request.form.get('company', '').strip()
     message = request.form.get('message', '').strip()
 
-    if not name or not email or not message:
+    if not name or not email:
         return jsonify({'success': False, 'error': 'Please fill in all required fields.'})
 
     # Always persist the lead to the database
@@ -455,8 +455,8 @@ def api_upgrade():
     company = (data.get("company") or "").strip()
     message = (data.get("message") or "").strip()
 
-    if not name or not email or not company:
-        return jsonify({"error": "Name, email, and company are required"}), 400
+    if not name or not email:
+        return jsonify({"error": "Name and email are required"}), 400
 
     conn = get_db()
     conn.execute(

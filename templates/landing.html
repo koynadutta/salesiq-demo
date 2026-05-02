@@ -3,20 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SalesIQ — AI Sales Intelligence for E-Commerce</title>
+<title>SalesIQ — See Which Products Are Making You Money</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg: #060810;
   --card: rgba(255,255,255,0.03);
+  --card-solid: #0d1120;
   --border: rgba(255,255,255,0.06);
   --border-hover: rgba(255,255,255,0.12);
   --text: #f8fafc;
   --muted: #64748b;
+  --muted-l: #94a3b8;
   --purple: #7c3aed;
   --purple-l: #8b5cf6;
   --pink: #db2777;
+  --green: #4ade80;
+  --red: #f87171;
+  --amber: #fbbf24;
   --gradient: linear-gradient(135deg, #7c3aed, #db2777);
   --glow: rgba(124,58,237,0.15);
 }
@@ -29,11 +34,11 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Animations ── */
 @keyframes heroReveal {
-  from { opacity: 0; transform: scale(0.72) translateY(48px); filter: blur(28px); }
-  to   { opacity: 1; transform: scale(1) translateY(0);      filter: blur(0); }
+  from { opacity: 0; transform: scale(0.92) translateY(32px); filter: blur(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
 }
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(22px); }
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes floatOrb {
@@ -48,6 +53,18 @@ a { color: inherit; text-decoration: none; }
 @keyframes scrollBob {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(8px); }
+}
+@keyframes barGrow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes urgencyPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
 }
 
 /* ══════════════════════════════════
@@ -89,13 +106,13 @@ a { color: inherit; text-decoration: none; }
 .hero {
   min-height: 100vh;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; position: relative; overflow: hidden; padding: 120px 24px 100px;
+  text-align: center; position: relative; overflow: hidden; padding: 120px 24px 80px;
 }
 .hero-grid {
   position: absolute; inset: 0; pointer-events: none;
   background-image:
-    linear-gradient(rgba(124,58,237,0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124,58,237,0.07) 1px, transparent 1px);
+    linear-gradient(rgba(124,58,237,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,0.06) 1px, transparent 1px);
   background-size: 64px 64px;
   -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 30%, transparent 100%);
   mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 30%, transparent 100%);
@@ -108,39 +125,36 @@ a { color: inherit; text-decoration: none; }
 .orb-2 { width: 650px; height: 650px; background: rgba(219,39,119,0.08); bottom: -200px; right: -160px; animation-duration: 15s; animation-delay: -6s; }
 .orb-3 { width: 450px; height: 450px; background: rgba(124,58,237,0.07); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-duration: 11s; animation-delay: -9s; }
 
-.hero-content { position: relative; z-index: 1; max-width: 960px; width: 100%; }
+.hero-content { position: relative; z-index: 1; max-width: 900px; width: 100%; }
 
 .hero-badge {
   display: inline-flex; align-items: center; gap: 10px;
   background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25);
   color: #a78bfa; font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
-  padding: 8px 20px; border-radius: 100px; margin-bottom: 36px;
+  padding: 8px 20px; border-radius: 100px; margin-bottom: 32px;
   animation: fadeUp 0.6s ease 0.2s both;
 }
-.badge-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; animation: pulseRing 2s infinite; flex-shrink: 0; }
+.badge-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulseRing 2s infinite; flex-shrink: 0; }
 
 .hero-title {
-  font-size: clamp(80px, 15vw, 164px);
-  font-weight: 900; letter-spacing: -6px; line-height: 0.88;
-  background: linear-gradient(135deg, #ffffff 15%, #c4b5fd 50%, #f9a8d4 85%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  animation: heroReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
-  margin-bottom: 28px;
+  font-size: clamp(32px, 5.5vw, 68px);
+  font-weight: 900; letter-spacing: -2.5px; line-height: 1.05;
+  color: var(--text); margin-bottom: 22px;
+  animation: heroReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
 }
-.hero-tagline {
-  font-size: clamp(18px, 3vw, 28px); font-weight: 600; letter-spacing: -0.5px;
-  color: rgba(248,250,252,0.72); margin-bottom: 18px;
-  animation: fadeUp 0.7s ease 1.05s both;
+.hero-title .accent {
+  background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.hero-desc {
-  font-size: 17px; color: var(--muted); line-height: 1.75;
-  max-width: 540px; margin: 0 auto 44px;
-  animation: fadeUp 0.7s ease 1.25s both;
+.hero-sub {
+  font-size: clamp(16px, 2.2vw, 20px); font-weight: 500;
+  color: var(--muted-l); line-height: 1.6;
+  max-width: 620px; margin: 0 auto 40px;
+  animation: fadeUp 0.7s ease 0.8s both;
 }
 .hero-actions {
   display: flex; align-items: center; justify-content: center; gap: 14px;
-  flex-wrap: wrap; margin-bottom: 72px;
-  animation: fadeUp 0.7s ease 1.45s both;
+  flex-wrap: wrap; margin-bottom: 18px;
+  animation: fadeUp 0.7s ease 1.0s both;
 }
 .btn-hero-primary {
   background: var(--gradient); color: white;
@@ -150,40 +164,123 @@ a { color: inherit; text-decoration: none; }
 }
 .btn-hero-primary:hover { box-shadow: 0 0 52px rgba(124,58,237,0.65); transform: translateY(-2px); }
 .btn-hero-outline {
-  border: 1px solid var(--border-hover); color: var(--muted);
+  border: 1px solid var(--border-hover); color: var(--muted-l);
   padding: 16px 38px; border-radius: 100px; font-size: 16px; font-weight: 600;
   background: transparent; transition: all 0.2s;
 }
 .btn-hero-outline:hover { border-color: rgba(124,58,237,0.5); color: var(--text); background: rgba(124,58,237,0.06); }
+.hero-no-cc {
+  font-size: 13px; color: var(--muted); margin-bottom: 64px;
+  animation: fadeUp 0.7s ease 1.1s both;
+}
 
-.hero-stats {
-  display: inline-flex; align-items: stretch;
-  background: var(--card); border: 1px solid var(--border); border-radius: 18px;
-  overflow: hidden; animation: fadeUp 0.7s ease 1.65s both;
+/* ── Dashboard Mockup ── */
+.dashboard-mockup {
+  position: relative; z-index: 1;
+  animation: fadeUp 0.9s ease 1.2s both;
+  margin: 0 auto; max-width: 900px;
 }
-.hero-stat { padding: 20px 32px; text-align: center; }
-.hero-stat + .hero-stat { border-left: 1px solid var(--border); }
-.hero-stat-val {
-  font-size: 30px; font-weight: 900; letter-spacing: -1px;
-  background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  line-height: 1;
+.mockup-window {
+  background: #0a0f1e; border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.1), 0 0 80px rgba(124,58,237,0.08);
 }
-.hero-stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 4px; white-space: nowrap; }
+.mockup-titlebar {
+  background: #0d1324; border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 12px 18px; display: flex; align-items: center; gap: 8px;
+}
+.mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-red   { background: #f87171; }
+.dot-amber { background: #fbbf24; }
+.dot-green { background: #4ade80; }
+.mockup-url {
+  margin-left: 12px; flex: 1; background: rgba(255,255,255,0.05);
+  border-radius: 6px; padding: 5px 12px; font-size: 11px; color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.mockup-body { padding: 20px; }
+.mockup-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.mkpi {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 12px 14px;
+}
+.mkpi-label { font-size: 10px; color: var(--muted); font-weight: 500; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.mkpi-val { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
+.mkpi-val.up { color: var(--green); }
+.mkpi-val.purple { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.mkpi-sub { font-size: 10px; color: var(--green); margin-top: 4px; font-weight: 600; }
+.mkpi-sub.down { color: var(--red); }
 
-.scroll-indicator {
-  position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 2px;
-  animation: fadeUp 0.7s ease 2s both;
+.mockup-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px; }
+.mockup-chart-area {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 14px;
 }
-.scroll-arrow { animation: scrollBob 2s ease-in-out infinite; }
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.chart-title { font-size: 12px; font-weight: 600; color: var(--text); }
+.chart-legend { display: flex; gap: 10px; }
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted); }
+.legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+.legend-actual { background: #8b5cf6; }
+.legend-forecast { background: #db2777; border: 1px dashed #db2777; background: transparent; width: 14px; height: 1px; border-radius: 0; }
+.chart-bars {
+  display: flex; align-items: flex-end; gap: 3px; height: 90px;
+}
+.cbar { flex: 1; border-radius: 3px 3px 0 0; transform-origin: bottom; animation: barGrow 1.2s cubic-bezier(0.34,1.56,0.64,1) both; }
+.cbar.actual { background: linear-gradient(to top, rgba(124,58,237,0.6), rgba(139,92,246,0.9)); }
+.cbar.forecast { background: linear-gradient(to top, rgba(219,39,119,0.3), rgba(219,39,119,0.6)); border: 1px dashed rgba(219,39,119,0.5); }
+
+.mockup-products {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 14px;
+}
+.prod-header { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.prod-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.prod-row:last-child { border-bottom: none; }
+.prod-rank { font-size: 10px; color: var(--muted); font-weight: 700; width: 16px; text-align: center; }
+.prod-info { flex: 1; min-width: 0; }
+.prod-name { font-size: 11px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-rev { font-size: 10px; color: var(--muted); }
+.prod-trend { font-size: 10px; font-weight: 700; }
+.trend-up   { color: var(--green); }
+.trend-down { color: var(--red); }
+.trend-flat { color: var(--amber); }
+.prod-bar-wrap { width: 48px; }
+.prod-bar-bg { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.prod-bar-fill { height: 100%; border-radius: 2px; background: var(--gradient); }
+
+.mockup-glow {
+  position: absolute; inset: -1px; border-radius: 17px; pointer-events: none;
+  background: radial-gradient(ellipse 60% 40% at 50% 100%, rgba(124,58,237,0.12), transparent);
+}
+
+/* ══════════════════════════════════
+   SOCIAL PROOF / BETA BANNER
+══════════════════════════════════ */
+.beta-banner {
+  background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(219,39,119,0.08));
+  border-top: 1px solid rgba(124,58,237,0.15);
+  border-bottom: 1px solid rgba(124,58,237,0.15);
+  padding: 20px 48px; text-align: center;
+}
+.beta-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
+.beta-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);
+  color: var(--amber); font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  padding: 5px 14px; border-radius: 100px; text-transform: uppercase;
+  animation: urgencyPulse 3s ease-in-out infinite;
+}
+.beta-text { font-size: 15px; font-weight: 600; color: var(--text); }
+.beta-text span { color: var(--amber); }
+.beta-subtext { font-size: 13px; color: var(--muted); }
 
 /* ══════════════════════════════════
    SHARED SECTION STYLES
 ══════════════════════════════════ */
-.section { padding: 108px 48px; }
+.section { padding: 100px 48px; }
 .section-inner { max-width: 1200px; margin: 0 auto; }
-.section-head { margin-bottom: 72px; }
+.section-head { margin-bottom: 64px; }
 .section-head.center { text-align: center; }
 .section-head.center .section-desc { margin: 0 auto; }
 .section-eyebrow {
@@ -191,8 +288,8 @@ a { color: inherit; text-decoration: none; }
   color: var(--purple-l); display: block; margin-bottom: 14px;
 }
 .section-title {
-  font-size: clamp(34px, 5vw, 54px); font-weight: 900; letter-spacing: -2px;
-  line-height: 1.08; color: var(--text); margin-bottom: 16px;
+  font-size: clamp(32px, 4.5vw, 50px); font-weight: 900; letter-spacing: -2px;
+  line-height: 1.1; color: var(--text); margin-bottom: 16px;
 }
 .section-desc { font-size: 17px; color: var(--muted); line-height: 1.75; max-width: 560px; }
 .grad { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -208,9 +305,39 @@ a { color: inherit; text-decoration: none; }
 .d6 { transition-delay: 0.48s; }
 
 /* ══════════════════════════════════
-   FEATURES
+   PROBLEM SECTION
 ══════════════════════════════════ */
-#features { background: linear-gradient(to bottom, var(--bg), #080c18); }
+#problem { background: linear-gradient(to bottom, var(--bg), #080c18); }
+.problem-card {
+  max-width: 860px; margin: 0 auto;
+  background: linear-gradient(135deg, rgba(248,113,113,0.05), rgba(251,191,36,0.03));
+  border: 1px solid rgba(248,113,113,0.12); border-radius: 24px; padding: 56px 64px;
+  text-align: center;
+}
+.problem-icon { font-size: 48px; margin-bottom: 24px; display: block; }
+.problem-headline {
+  font-size: clamp(22px, 3.5vw, 34px); font-weight: 800; letter-spacing: -1px;
+  line-height: 1.25; color: var(--text); margin-bottom: 24px;
+}
+.problem-bullets {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px;
+}
+.problem-bullet {
+  background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.1);
+  border-radius: 12px; padding: 16px; text-align: left;
+}
+.pb-icon { font-size: 18px; margin-bottom: 8px; display: block; }
+.pb-text { font-size: 13px; color: var(--muted-l); line-height: 1.5; }
+.problem-cta-text {
+  font-size: 18px; font-weight: 700; color: var(--text);
+  padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06);
+}
+.problem-cta-text .solution { color: #4ade80; }
+
+/* ══════════════════════════════════
+   FEATURES (OUTCOMES)
+══════════════════════════════════ */
+#features { background: #080c18; }
 .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .feat-card {
   background: var(--card); border: 1px solid var(--border); border-radius: 20px;
@@ -233,13 +360,13 @@ a { color: inherit; text-decoration: none; }
 }
 .pill-free { background: rgba(74,222,128,0.1);  color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
 .pill-pro  { background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); }
-.feat-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.feat-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.3; }
 .feat-desc  { font-size: 14px; color: var(--muted); line-height: 1.65; }
 
 /* ══════════════════════════════════
    HOW IT WORKS
 ══════════════════════════════════ */
-#how { background: #080c18; }
+#how { background: linear-gradient(to bottom, #080c18, var(--bg)); }
 .steps-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; position: relative; }
 .steps-row::before {
   content: '';
@@ -250,10 +377,9 @@ a { color: inherit; text-decoration: none; }
 .step { text-align: center; padding: 8px 16px; position: relative; }
 .step-badge {
   width: 64px; height: 64px; margin: 0 auto 22px; border-radius: 50%;
-  background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(219,39,119,0.12)), #080c18;
+  background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(219,39,119,0.12)), var(--bg);
   border: 1px solid rgba(124,58,237,0.25); box-shadow: 0 0 32px rgba(124,58,237,0.12);
-  display: flex; align-items: center; justify-content: center;
-  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center; position: relative; z-index: 1;
 }
 .step-num-text {
   font-size: 22px; font-weight: 900; letter-spacing: -1px;
@@ -265,8 +391,16 @@ a { color: inherit; text-decoration: none; }
 /* ══════════════════════════════════
    PRICING
 ══════════════════════════════════ */
-#pricing { background: linear-gradient(to bottom, #080c18, var(--bg)); }
-.pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 880px; margin: 0 auto; }
+#pricing { background: var(--bg); }
+.pricing-wrapper { max-width: 960px; margin: 0 auto; }
+.pricing-urgency {
+  text-align: center; margin-bottom: 32px;
+  background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.04));
+  border: 1px solid rgba(251,191,36,0.2); border-radius: 12px; padding: 16px 24px;
+  font-size: 15px; font-weight: 600; color: var(--amber);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .pricing-card {
   background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 36px;
   transition: all 0.3s;
@@ -275,6 +409,14 @@ a { color: inherit; text-decoration: none; }
 .pricing-card.featured {
   border-color: rgba(124,58,237,0.3); box-shadow: 0 0 60px rgba(124,58,237,0.1);
   background: linear-gradient(135deg, rgba(124,58,237,0.07), rgba(219,39,119,0.04));
+  position: relative; overflow: hidden;
+}
+.pricing-card.featured::before {
+  content: 'MOST POPULAR';
+  position: absolute; top: 20px; right: -28px;
+  background: var(--gradient); color: white;
+  font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+  padding: 5px 40px; transform: rotate(35deg);
 }
 .pricing-card.featured:hover { box-shadow: 0 24px 64px rgba(124,58,237,0.2); }
 .plan-eyebrow {
@@ -282,13 +424,18 @@ a { color: inherit; text-decoration: none; }
   padding: 4px 12px; border-radius: 100px; margin-bottom: 18px;
 }
 .plan-eyebrow.free { background: rgba(100,116,139,0.1); color: #64748b; border: 1px solid rgba(100,116,139,0.2); }
-.plan-eyebrow.pro  { background: rgba(124,58,237,0.12); color: #a78bfa; border: 1px solid rgba(124,58,237,0.28); }
-.plan-name  { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
-.plan-price { font-size: 52px; font-weight: 900; letter-spacing: -2px; line-height: 1; margin-bottom: 6px; }
+.plan-eyebrow.beta { background: rgba(251,191,36,0.1); color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
+.plan-name  { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.plan-tagline { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+.plan-price { font-size: 52px; font-weight: 900; letter-spacing: -2px; line-height: 1; margin-bottom: 4px; }
 .plan-price.free-price { color: #64748b; }
-.plan-price.pro-price  { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.plan-cycle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
-.plan-divider { height: 1px; background: var(--border); margin: 24px 0; }
+.plan-price.beta-price { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.plan-cycle { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.plan-old-price {
+  font-size: 13px; color: var(--red); text-decoration: line-through;
+  margin-bottom: 20px; font-weight: 500;
+}
+.plan-divider { height: 1px; background: var(--border); margin: 20px 0; }
 .plan-items { list-style: none; display: flex; flex-direction: column; gap: 13px; margin-bottom: 32px; }
 .plan-item { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; }
 .plan-item .ck  { flex-shrink: 0; margin-top: 1px; font-size: 13px; }
@@ -298,12 +445,92 @@ a { color: inherit; text-decoration: none; }
 .plan-item .item-text.off { color: var(--muted); }
 .btn-plan {
   display: block; width: 100%; padding: 14px; border-radius: 12px; text-align: center;
-  font-size: 15px; font-weight: 600; transition: all 0.2s;
+  font-size: 15px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none;
 }
 .btn-plan.outline { background: transparent; border: 1px solid var(--border); color: var(--muted); }
 .btn-plan.outline:hover { border-color: var(--border-hover); color: var(--text); }
 .btn-plan.filled  { background: var(--gradient); color: white; box-shadow: 0 4px 20px rgba(124,58,237,0.3); }
 .btn-plan.filled:hover { box-shadow: 0 4px 32px rgba(124,58,237,0.5); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   FAQ
+══════════════════════════════════ */
+#faq { background: linear-gradient(to bottom, var(--bg), #080c18); }
+.faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.faq-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.faq-item.open { border-color: rgba(124,58,237,0.25); }
+.faq-q {
+  width: 100%; background: none; border: none; color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600;
+  padding: 22px 24px; display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; text-align: left; gap: 16px;
+}
+.faq-q:hover { color: #c4b5fd; }
+.faq-chevron {
+  flex-shrink: 0; width: 20px; height: 20px;
+  border: 1.5px solid var(--muted); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.3s, border-color 0.2s;
+  color: var(--muted);
+}
+.faq-item.open .faq-chevron { transform: rotate(180deg); border-color: var(--purple-l); color: var(--purple-l); }
+.faq-a {
+  max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;
+  font-size: 15px; color: var(--muted-l); line-height: 1.75;
+  padding: 0 24px;
+}
+.faq-item.open .faq-a { max-height: 300px; padding: 0 24px 22px; }
+
+/* ══════════════════════════════════
+   CONTACT MODAL
+══════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+  z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.modal {
+  background: #0d1324; border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 24px; padding: 40px; width: 100%; max-width: 520px;
+  transform: scale(0.94) translateY(20px); transition: transform 0.25s;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+}
+.modal-overlay.active .modal { transform: scale(1) translateY(0); }
+.modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.modal-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+.modal-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.modal-close {
+  background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px;
+  font-size: 20px; line-height: 1; transition: color 0.2s;
+}
+.modal-close:hover { color: var(--text); }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; font-weight: 600; color: var(--muted-l); margin-bottom: 6px; }
+.form-input {
+  width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 16px; color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: rgba(124,58,237,0.5); }
+.form-input::placeholder { color: var(--muted); }
+textarea.form-input { resize: vertical; min-height: 90px; }
+.form-submit {
+  width: 100%; background: var(--gradient); color: white;
+  border: none; border-radius: 12px; padding: 14px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(124,58,237,0.3); margin-top: 8px;
+}
+.form-submit:hover { box-shadow: 0 4px 32px rgba(124,58,237,0.5); transform: translateY(-1px); }
+.form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.form-msg { font-size: 14px; text-align: center; margin-top: 12px; min-height: 20px; }
+.form-msg.ok  { color: var(--green); }
+.form-msg.err { color: var(--red); }
 
 /* ══════════════════════════════════
    FINAL CTA
@@ -315,11 +542,12 @@ a { color: inherit; text-decoration: none; }
   top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
 }
 .cta-title {
-  font-size: clamp(38px, 6vw, 68px); font-weight: 900; letter-spacing: -2.5px;
-  line-height: 1.08; color: var(--text); margin-bottom: 18px;
+  font-size: clamp(34px, 5.5vw, 62px); font-weight: 900; letter-spacing: -2px;
+  line-height: 1.1; color: var(--text); margin-bottom: 16px;
 }
-.cta-desc { font-size: 18px; color: var(--muted); margin-bottom: 44px; max-width: 440px; margin-left: auto; margin-right: auto; }
+.cta-desc { font-size: 18px; color: var(--muted); margin-bottom: 40px; max-width: 440px; margin-left: auto; margin-right: auto; }
 .cta-actions { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.cta-fine { font-size: 13px; color: var(--muted); margin-top: 16px; }
 
 /* ══════════════════════════════════
    FOOTER
@@ -346,24 +574,30 @@ footer {
   .features-grid { grid-template-columns: repeat(2, 1fr); }
   .nav-links { display: none; }
   .navbar { padding: 0 24px; }
+  .mockup-kpis { grid-template-columns: repeat(2, 1fr); }
+  .problem-bullets { grid-template-columns: 1fr; gap: 10px; }
+  .problem-card { padding: 40px 32px; }
 }
 @media (max-width: 768px) {
   .section { padding: 72px 24px; }
   .steps-row { grid-template-columns: 1fr; }
   .steps-row::before { display: none; }
-  .pricing-grid { grid-template-columns: 1fr; max-width: 480px; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
   .cta-band { padding: 80px 24px; }
   footer { padding: 28px 24px; grid-template-columns: 1fr; justify-items: center; text-align: center; }
   .footer-copy { justify-self: center; }
   .footer-links { justify-content: center; }
-  .hero-stats { flex-direction: column; border-radius: 14px; }
-  .hero-stat + .hero-stat { border-left: none; border-top: 1px solid var(--border); }
+  .beta-banner { padding: 16px 24px; }
+  .beta-inner { gap: 12px; flex-direction: column; }
+  .mockup-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 580px) {
   .features-grid { grid-template-columns: 1fr; }
   .hero-actions { flex-direction: column; width: 100%; max-width: 340px; }
   .btn-hero-primary, .btn-hero-outline { width: 100%; justify-content: center; }
   .cta-actions { flex-direction: column; width: 100%; max-width: 320px; margin: 0 auto; }
+  .mockup-body { padding: 12px; }
+  .mockup-kpis { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 }
 </style>
 </head>
@@ -376,13 +610,14 @@ footer {
     <span class="nav-logo-name">SalesIQ.</span>
   </div>
   <div class="nav-links">
+    <a href="#problem" class="nav-link">Why SalesIQ</a>
     <a href="#features" class="nav-link">Features</a>
-    <a href="#how" class="nav-link">How It Works</a>
     <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="#faq" class="nav-link">FAQ</a>
   </div>
   <div class="nav-actions">
     <a href="/dashboard" class="btn-ghost">Log In</a>
-    <a href="/dashboard" class="btn-nav-cta">Try Free Demo →</a>
+    <a href="/dashboard" class="btn-nav-cta">Start Free Trial →</a>
   </div>
 </nav>
 
@@ -396,46 +631,159 @@ footer {
   <div class="hero-content">
     <div class="hero-badge">
       <span class="badge-dot"></span>
-      AI-Powered &nbsp;·&nbsp; Free Demo Available
+      Beta Open &nbsp;·&nbsp; 5 Founder Spots Remaining
     </div>
 
-    <h1 class="hero-title">SalesIQ.</h1>
+    <h1 class="hero-title">
+      Know Your Winners.<br>
+      <span class="accent">Cut Your Losers.</span>
+    </h1>
 
-    <p class="hero-tagline">AI Sales Intelligence for E-Commerce</p>
-    <p class="hero-desc">Stop guessing. Start knowing. Forecast revenue, track product performance, and understand your customers — powered by AI built for Shopify stores.</p>
+    <p class="hero-sub">
+      SalesIQ shows Shopify store owners exactly which products drive revenue and which drain budget — in under 2 minutes. No spreadsheets, no guesswork.
+    </p>
 
     <div class="hero-actions">
-      <a href="/dashboard" class="btn-hero-primary">Start Free Demo →</a>
-      <a href="#features" class="btn-hero-outline">See Features ↓</a>
+      <a href="/dashboard" class="btn-hero-primary">Start Free Trial →</a>
+      <button class="btn-hero-outline" onclick="openModal()">Book a Demo Call</button>
     </div>
-
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-val">3,655+</div>
-        <div class="hero-stat-label">Data Points</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-val">10</div>
-        <div class="hero-stat-label">Products Tracked</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-val">90d</div>
-        <div class="hero-stat-label">History Window</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-val">Real AI</div>
-        <div class="hero-stat-label">Forecasting</div>
-      </div>
-    </div>
+    <p class="hero-no-cc">No credit card required &nbsp;·&nbsp; Free forever on the basic plan</p>
   </div>
 
-  <div class="scroll-indicator">
-    <div class="scroll-arrow">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4">
-        <path d="M12 5v14M5 12l7 7 7-7"/>
-      </svg>
+  <!-- Dashboard Mockup -->
+  <div class="dashboard-mockup reveal">
+    <div class="mockup-window">
+      <div class="mockup-titlebar">
+        <div class="mockup-dot dot-red"></div>
+        <div class="mockup-dot dot-amber"></div>
+        <div class="mockup-dot dot-green"></div>
+        <div class="mockup-url">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          app.salesiq.io/dashboard
+        </div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-kpis">
+          <div class="mkpi">
+            <div class="mkpi-label">90-Day Revenue</div>
+            <div class="mkpi-val purple">$91,240</div>
+            <div class="mkpi-sub">↑ 14% vs last period</div>
+          </div>
+          <div class="mkpi">
+            <div class="mkpi-label">7-Day Forecast</div>
+            <div class="mkpi-val purple">$7,840</div>
+            <div class="mkpi-sub">AI-predicted</div>
+          </div>
+          <div class="mkpi">
+            <div class="mkpi-label">Top Product</div>
+            <div class="mkpi-val" style="font-size:14px;color:var(--text);font-weight:700;padding-top:3px;">Sports Headphones</div>
+            <div class="mkpi-sub">↑ Growing fast</div>
+          </div>
+          <div class="mkpi">
+            <div class="mkpi-label">Avg Daily Rev</div>
+            <div class="mkpi-val purple">$1,014</div>
+            <div class="mkpi-sub down">↓ 2 products declining</div>
+          </div>
+        </div>
+        <div class="mockup-grid">
+          <div class="mockup-chart-area">
+            <div class="chart-header">
+              <span class="chart-title">Revenue &amp; 7-Day Forecast</span>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot legend-actual"></div>Actual</div>
+                <div class="legend-item"><div class="legend-dot legend-forecast"></div>Forecast</div>
+              </div>
+            </div>
+            <div class="chart-bars" id="mockupBars"></div>
+          </div>
+          <div class="mockup-products">
+            <div class="prod-header">Product Performance</div>
+            <div class="prod-row">
+              <div class="prod-rank">#1</div>
+              <div class="prod-info">
+                <div class="prod-name">Sports Headphones</div>
+                <div class="prod-rev">$19,820 / 90d</div>
+              </div>
+              <div class="prod-trend trend-up">↑ 14%</div>
+            </div>
+            <div class="prod-row">
+              <div class="prod-rank">#2</div>
+              <div class="prod-info">
+                <div class="prod-name">Running Shoes</div>
+                <div class="prod-rev">$22,310 / 90d</div>
+              </div>
+              <div class="prod-trend trend-up">↑ 8%</div>
+            </div>
+            <div class="prod-row">
+              <div class="prod-rank">#3</div>
+              <div class="prod-info">
+                <div class="prod-name">Protein Powder</div>
+                <div class="prod-rev">$15,480 / 90d</div>
+              </div>
+              <div class="prod-trend trend-up">↑ 12%</div>
+            </div>
+            <div class="prod-row">
+              <div class="prod-rank">#8</div>
+              <div class="prod-info">
+                <div class="prod-name">Resistance Bands</div>
+                <div class="prod-rev">$6,120 / 90d</div>
+              </div>
+              <div class="prod-trend trend-down">↓ 5%</div>
+            </div>
+            <div class="prod-row">
+              <div class="prod-rank">#10</div>
+              <div class="prod-info">
+                <div class="prod-name">Compression Socks</div>
+                <div class="prod-rev">$5,130 / 90d</div>
+              </div>
+              <div class="prod-trend trend-down">↓ 4%</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    SCROLL
+    <div class="mockup-glow"></div>
+  </div>
+</section>
+
+<!-- ══════ SOCIAL PROOF / BETA BANNER ══════ -->
+<div class="beta-banner">
+  <div class="beta-inner">
+    <div class="beta-tag">⚡ Beta Now Open</div>
+    <div class="beta-text">Currently in Beta — <span>5 Founder Spots Available at $299/month</span></div>
+    <div class="beta-subtext">Price increases to $1,999/month after beta. Lock in now.</div>
+    <button class="btn-nav-cta" onclick="openModal()">Claim Your Spot →</button>
+  </div>
+</div>
+
+<!-- ══════ PROBLEM ══════ -->
+<section class="section" id="problem">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="problem-card">
+        <div class="problem-headline">
+          You're running ads, restocking shelves, and scaling spend — all based on gut feeling.<br><br>
+          <em style="font-style:normal;color:var(--muted-l)">SalesIQ changes that.</em>
+        </div>
+        <div class="problem-bullets">
+          <div class="problem-bullet">
+            <span class="pb-icon">💸</span>
+            <div class="pb-text">You keep restocking products that quietly bleed money — because you don't have a fast way to spot the losers.</div>
+          </div>
+          <div class="problem-bullet">
+            <span class="pb-icon">📊</span>
+            <div class="pb-text">You export CSV reports from Shopify and spend hours in spreadsheets every week just to answer "what's working?"</div>
+          </div>
+          <div class="problem-bullet">
+            <span class="pb-icon">🎲</span>
+            <div class="pb-text">You're forecasting next month's inventory with gut feel — then either over-ordering or running out at the worst time.</div>
+          </div>
+        </div>
+        <div class="problem-cta-text">
+          <span class="solution">SalesIQ answers all of this in under 2 minutes.</span> No data science required.
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -443,47 +791,47 @@ footer {
 <section class="section" id="features">
   <div class="section-inner">
     <div class="section-head reveal">
-      <span class="section-eyebrow">Features</span>
-      <h2 class="section-title">Everything you need to<br><span class="grad">forecast smarter</span></h2>
-      <p class="section-desc">From real-time dashboards to AI-powered predictions — all the tools your e-commerce store needs in one place.</p>
+      <span class="section-eyebrow">What You Get</span>
+      <h2 class="section-title">Built around one question:<br><span class="grad">what do I do next?</span></h2>
+      <p class="section-desc">Every feature tells you where to act — not just what happened.</p>
     </div>
 
     <div class="features-grid">
       <div class="feat-card reveal d1">
         <div class="feat-icon">📈</div>
         <span class="feat-pill pill-free">FREE</span>
-        <div class="feat-title">AI Sales Forecasting</div>
-        <div class="feat-desc">Predict your next 7 days of revenue with machine learning. See which products are rising and plan inventory ahead of demand.</div>
+        <div class="feat-title">Never over-order or run out again</div>
+        <div class="feat-desc">AI-powered 7-day revenue forecasts per product — so you order the right amount, not what feels right. Built on real regression modeling, not guesswork.</div>
       </div>
       <div class="feat-card reveal d2">
-        <div class="feat-icon">📦</div>
+        <div class="feat-icon">🎯</div>
         <span class="feat-pill pill-free">FREE</span>
-        <div class="feat-title">Product Performance</div>
-        <div class="feat-desc">Track revenue, units sold, and average order value for your top 10 products over the last 90 days. Know your winners instantly.</div>
+        <div class="feat-title">Stop funding your worst products</div>
+        <div class="feat-desc">Revenue, units, and trend direction for every product — at a glance. The ones dragging you down are flagged automatically. No pivot tables required.</div>
       </div>
       <div class="feat-card reveal d3">
         <div class="feat-icon">🗂️</div>
         <span class="feat-pill pill-free">FREE</span>
-        <div class="feat-title">Live Dashboard</div>
-        <div class="feat-desc">Total revenue, predicted revenue, best product, and daily averages at a glance. Your business vitals, always front and center.</div>
+        <div class="feat-title">Your business at a glance — every morning</div>
+        <div class="feat-desc">Total revenue, best performer, daily average, and 7-day predicted revenue. Front and center, updated daily. No digging through Shopify reports.</div>
       </div>
       <div class="feat-card reveal d4">
         <div class="feat-icon">👥</div>
         <span class="feat-pill pill-pro">PRO</span>
-        <div class="feat-title">Customer LTV Analysis</div>
-        <div class="feat-desc">Segment customers by value, predict 12-month lifetime revenue, and flag churn risk before customers leave. RFM scoring included.</div>
+        <div class="feat-title">Stop churn before it costs you</div>
+        <div class="feat-desc">RFM segmentation and 12-month LTV prediction per customer. Spot your VIPs, flag at-risk buyers, and know where your next $10K is coming from.</div>
       </div>
       <div class="feat-card reveal d5">
         <div class="feat-icon">🔌</div>
         <span class="feat-pill pill-pro">PRO</span>
-        <div class="feat-title">Shopify Integration</div>
-        <div class="feat-desc">Connect your store and sync orders automatically every 24 hours. Your team wakes up to fresh forecasts every morning — zero manual work.</div>
+        <div class="feat-title">Fresh forecasts every morning. Zero effort.</div>
+        <div class="feat-desc">Connect your Shopify store once. Orders sync automatically every 24 hours. Your dashboard is always current — no exports, no uploads, no maintenance.</div>
       </div>
       <div class="feat-card reveal d6">
         <div class="feat-icon">🔔</div>
         <span class="feat-pill pill-pro">PRO</span>
-        <div class="feat-title">Smart Alerts</div>
-        <div class="feat-desc">Get email notifications the moment a product starts declining. React in hours, not weeks. Catch problems before they hit revenue.</div>
+        <div class="feat-title">Catch declining products in hours, not weeks</div>
+        <div class="feat-desc">Automatic email alerts the moment a product's trend turns negative. Catch problems at 5% decline, not 40%. Stay ahead of your revenue curve.</div>
       </div>
     </div>
   </div>
@@ -494,25 +842,25 @@ footer {
   <div class="section-inner">
     <div class="section-head center reveal">
       <span class="section-eyebrow">How It Works</span>
-      <h2 class="section-title">Up and running in <span class="grad">minutes</span></h2>
-      <p class="section-desc">No complicated setup. No data science degree required. Just connect your data and let the AI do the rest.</p>
+      <h2 class="section-title">Up and running in <span class="grad">under 2 minutes</span></h2>
+      <p class="section-desc">No complicated setup. No data science degree. No week-long onboarding.</p>
     </div>
 
     <div class="steps-row">
       <div class="step reveal d1">
         <div class="step-badge"><span class="step-num-text">01</span></div>
-        <div class="step-title">Connect Your Data</div>
-        <div class="step-desc">Upload a CSV of your sales history or connect your Shopify store directly. The free demo includes 90 days of sample data so you can explore instantly.</div>
+        <div class="step-title">Connect Your Store</div>
+        <div class="step-desc">Upload a CSV of your sales history or connect your Shopify store directly. The free trial includes 90 days of real demo data so you can explore instantly — no waiting, no setup.</div>
       </div>
       <div class="step reveal d2">
         <div class="step-badge"><span class="step-num-text">02</span></div>
-        <div class="step-title">AI Analyzes Everything</div>
-        <div class="step-desc">Our forecasting engine runs regression and exponential smoothing on your data to generate accurate, product-level revenue predictions automatically.</div>
+        <div class="step-title">AI Does the Heavy Lifting</div>
+        <div class="step-desc">Our forecasting engine analyzes trends, seasonality, and growth rates across every product. You get accurate revenue predictions and a ranked view of winners vs. losers — automatically.</div>
       </div>
       <div class="step reveal d3">
         <div class="step-badge"><span class="step-num-text">03</span></div>
-        <div class="step-title">Make Better Decisions</div>
-        <div class="step-desc">Order the right inventory, double down on growing products, and identify at-risk customers — all backed by data, not guesswork.</div>
+        <div class="step-title">Make Confident Decisions</div>
+        <div class="step-desc">Order the right inventory, cut ad spend on declining products, double down on your growers, and identify at-risk customers — all backed by data, not a hunch.</div>
       </div>
     </div>
   </div>
@@ -523,60 +871,134 @@ footer {
   <div class="section-inner">
     <div class="section-head center reveal">
       <span class="section-eyebrow">Pricing</span>
-      <h2 class="section-title">Start free. <span class="grad">Scale when ready.</span></h2>
-      <p class="section-desc">Try the full demo — no credit card needed. Upgrade to Pro when you're ready to unlock the full power of SalesIQ.</p>
+      <h2 class="section-title">Start free. <span class="grad">Lock in beta pricing.</span></h2>
+      <p class="section-desc">Try the full free trial with no credit card. Upgrade to Pro at the lowest price it will ever be — 5 spots left.</p>
     </div>
 
-    <div class="pricing-grid">
-      <div class="pricing-card reveal d1">
-        <span class="plan-eyebrow free">FREE DEMO</span>
-        <div class="plan-name">Free Demo</div>
-        <div class="plan-price free-price">$0</div>
-        <div class="plan-cycle">No credit card required</div>
-        <div class="plan-divider"></div>
-        <ul class="plan-items">
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Live sales dashboard</span></li>
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">7-day AI sales forecast</span></li>
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Product performance (top 10)</span></li>
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">CSV upload (50 rows)</span></li>
-          <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">14-day &amp; 30-day forecasts</span></li>
-          <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">Customer LTV analysis</span></li>
-          <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">Shopify integration</span></li>
-        </ul>
-        <a href="/dashboard" class="btn-plan outline">Try Free Demo</a>
+    <div class="pricing-wrapper reveal">
+      <div class="pricing-urgency">
+        ⚡ &nbsp;Beta pricing ends once all 5 founder spots are filled. Price goes to $1,999/month after that.
       </div>
 
-      <div class="pricing-card featured reveal d2">
-        <span class="plan-eyebrow pro">PRO PLAN</span>
-        <div class="plan-name">Pro</div>
-        <div class="plan-price pro-price">$1,999</div>
-        <div class="plan-cycle">/month · Cancel anytime</div>
-        <div class="plan-divider"></div>
-        <ul class="plan-items">
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Everything in Free Demo</span></li>
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">14-day &amp; 30-day forecasts</span></li>
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Customer Lifetime Value (LTV)</span></li>
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Shopify auto-sync (daily)</span></li>
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Unlimited data processing</span></li>
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Email alerts &amp; cohort analysis</span></li>
-          <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Priority support &amp; onboarding</span></li>
-        </ul>
-        <a href="/dashboard" class="btn-plan filled">Request a Demo Call →</a>
+      <div class="pricing-grid">
+        <!-- Free -->
+        <div class="pricing-card">
+          <span class="plan-eyebrow free">FREE FOREVER</span>
+          <div class="plan-name">Free Trial</div>
+          <div class="plan-tagline">See the dashboard with real demo data. No credit card, no time limit.</div>
+          <div class="plan-price free-price">$0</div>
+          <div class="plan-cycle">Forever free on the basic plan</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-items">
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Live sales dashboard</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">7-day AI sales forecast</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Product performance (top 10)</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">CSV upload (50 rows)</span></li>
+            <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">14-day &amp; 30-day forecasts</span></li>
+            <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">Customer LTV &amp; churn analysis</span></li>
+            <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">Shopify auto-sync</span></li>
+            <li class="plan-item"><span class="ck ck-off">✗</span><span class="item-text off">Email alerts &amp; smart notifications</span></li>
+          </ul>
+          <a href="/dashboard" class="btn-plan outline">Start Free Trial</a>
+        </div>
+
+        <!-- Pro / Beta -->
+        <div class="pricing-card featured">
+          <span class="plan-eyebrow beta">⚡ BETA FOUNDER</span>
+          <div class="plan-name">Pro — Beta Pricing</div>
+          <div class="plan-tagline">5 founder spots only. Lock in the lowest price SalesIQ will ever be.</div>
+          <div class="plan-price beta-price">$299</div>
+          <div class="plan-cycle">/month &nbsp;·&nbsp; Cancel anytime</div>
+          <div class="plan-old-price">Increases to $1,999/month after beta</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-items">
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Everything in Free Trial</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">14-day &amp; 30-day forecasts</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Customer Lifetime Value (LTV)</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Shopify auto-sync (updates daily)</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Unlimited data &amp; products</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Email alerts when products decline</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Priority support &amp; onboarding call</span></li>
+            <li class="plan-item"><span class="ck ck-on">✓</span><span class="item-text">Price locked for life at $299/month</span></li>
+          </ul>
+          <button class="btn-plan filled" onclick="openModal()">Claim Founder Spot — $299/mo →</button>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════ CTA ══════ -->
+<!-- ══════ FAQ ══════ -->
+<section class="section" id="faq">
+  <div class="section-inner">
+    <div class="section-head center reveal">
+      <span class="section-eyebrow">FAQ</span>
+      <h2 class="section-title">Your questions, <span class="grad">answered.</span></h2>
+    </div>
+
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Does this connect to my Shopify store?
+          <div class="faq-chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+        </button>
+        <div class="faq-a">Yes — on the Pro plan, you connect your Shopify store once and orders sync automatically every 24 hours. On the free plan, you can upload a CSV export from Shopify (up to 50 rows) to see how the dashboard works with your real data.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Is there really a free trial? What's the catch?
+          <div class="faq-chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+        </button>
+        <div class="faq-a">No catch. The free trial gives you a fully working dashboard with 90 days of real sample data — AI forecasts, product performance, the works. No credit card required, no time limit. It's free forever on the basic plan. You only upgrade if you want Shopify integration, LTV analysis, and email alerts.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What if it doesn't work for my store?
+          <div class="faq-chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor", stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+        </button>
+        <div class="faq-a">Cancel anytime — no questions asked. For Pro subscribers, we offer a 14-day refund if you feel SalesIQ didn't deliver value. Just email us and we'll process it same day. We'd also love to understand what didn't work so we can improve it.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How accurate are the AI forecasts?
+          <div class="faq-chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+        </button>
+        <div class="faq-a">Our forecasts use a blend of exponential smoothing and linear regression trained on your actual sales history. On typical e-commerce stores with consistent data, 7-day forecasts are accurate within 8–15%. The more data you give it, the more accurate it gets. We're transparent about the model — no black box.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What's the beta founder pricing, exactly?
+          <div class="faq-chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+        </button>
+        <div class="faq-a">We have 5 beta founder spots at $299/month. Once those spots are filled, the Pro plan will go to its full price of $1,999/month. Founders who lock in now keep the $299/month rate for as long as they stay on Pro — it never increases for them. No tricks, no bait-and-switch.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Do I need technical skills to use this?
+          <div class="faq-chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+        </button>
+        <div class="faq-a">None whatsoever. If you can use Shopify, you can use SalesIQ. The dashboard loads instantly, the forecasts run automatically, and the setup takes under 2 minutes. If you get stuck, just book a demo call and we'll walk you through it live.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FINAL CTA ══════ -->
 <section class="cta-band">
   <div class="cta-glow"></div>
   <div class="reveal" style="position:relative;z-index:1;">
-    <h2 class="cta-title">Ready to stop guessing?<br><span class="grad">Start forecasting.</span></h2>
-    <p class="cta-desc">Join the free demo today. No setup, no credit card, no commitment.</p>
+    <h2 class="cta-title">Ready to stop guessing?<br><span class="grad">Start here.</span></h2>
+    <p class="cta-desc">Free trial, no credit card, no setup. See your first insights in under 2 minutes.</p>
     <div class="cta-actions">
-      <a href="/dashboard" class="btn-hero-primary">Start Free Demo →</a>
-      <a href="#features" class="btn-hero-outline">See Features</a>
+      <a href="/dashboard" class="btn-hero-primary">Start Free Trial →</a>
+      <button class="btn-hero-outline" onclick="openModal()">Book a Demo Call</button>
     </div>
+    <p class="cta-fine">5 beta founder spots at $299/month — price goes to $1,999/month after.</p>
   </div>
 </section>
 
@@ -589,38 +1011,124 @@ footer {
   </div>
   <div class="footer-links">
     <a href="/dashboard" class="footer-lnk">Log In</a>
-    <a href="/dashboard" class="footer-lnk">Free Demo</a>
+    <a href="/dashboard" class="footer-lnk">Free Trial</a>
     <a href="#features" class="footer-lnk">Features</a>
     <a href="#pricing" class="footer-lnk">Pricing</a>
+    <a href="#faq" class="footer-lnk">FAQ</a>
   </div>
   <span class="footer-copy">© 2025 SalesIQ</span>
 </footer>
 
-<script>
-// Scroll reveal with IntersectionObserver
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      revealObserver.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+<!-- ══════ DEMO BOOKING MODAL ══════ -->
+<div class="modal-overlay" id="contactModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Book a Demo Call</div>
+        <div class="modal-sub">We'll walk you through SalesIQ live — 20 minutes, no pressure.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <form id="contactForm" onsubmit="submitContact(event)">
+      <div class="form-group">
+        <label class="form-label">Your Name *</label>
+        <input type="text" class="form-input" name="name" placeholder="Alex Johnson" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Work Email *</label>
+        <input type="email" class="form-input" name="email" placeholder="alex@yourstore.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Store / Company Name *</label>
+        <input type="text" class="form-input" name="company" placeholder="My Shopify Store">
+      </div>
+      <div class="form-group">
+        <label class="form-label">What would you most like to see? (optional)</label>
+        <textarea class="form-input" name="message" placeholder="e.g. Product performance, Shopify integration, forecasting..."></textarea>
+      </div>
+      <button type="submit" class="form-submit" id="formSubmitBtn">Book My Demo Call →</button>
+      <div class="form-msg" id="formMsg"></div>
+    </form>
+  </div>
+</div>
 
-// Smooth anchor scroll
+<script>
+// ── Dashboard chart bars ─────────────────────────
+const heights = [52,61,48,70,65,58,72,68,80,74,85,79,88,83,76,91,87,82,78,90,
+                 86,84,77,92,88,80,75,89,84,72, 78,84,90,96,88];
+const container = document.getElementById('mockupBars');
+heights.forEach((h, i) => {
+  const bar = document.createElement('div');
+  const isF = i >= 28;
+  bar.className = `cbar ${isF ? 'forecast' : 'actual'}`;
+  bar.style.cssText = `height:${h}%;animation-delay:${i * 0.04}s`;
+  container.appendChild(bar);
+});
+
+// ── Scroll reveal ─────────────────────────────────
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ── Smooth anchor scroll ──────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
   });
 });
 
-// Navbar solidifies on scroll
+// ── Navbar solidifies on scroll ───────────────────
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').style.background =
     window.scrollY > 50 ? 'rgba(6,8,16,0.96)' : 'rgba(6,8,16,0.7)';
 }, { passive: true });
+
+// ── FAQ accordion ─────────────────────────────────
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// ── Modal ─────────────────────────────────────────
+function openModal()  { document.getElementById('contactModal').classList.add('active'); document.body.style.overflow='hidden'; }
+function closeModal() { document.getElementById('contactModal').classList.remove('active'); document.body.style.overflow=''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Contact form ──────────────────────────────────
+async function submitContact(e) {
+  e.preventDefault();
+  const btn = document.getElementById('formSubmitBtn');
+  const msg = document.getElementById('formMsg');
+  const form = e.target;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  msg.textContent = '';
+  msg.className = 'form-msg';
+  try {
+    const data = new FormData(form);
+    const res = await fetch('/contact', { method: 'POST', body: data });
+    const json = await res.json();
+    if (json.success) {
+      msg.textContent = "✓ Got it! We'll reach out within 24 hours.";
+      msg.className = 'form-msg ok';
+      form.reset();
+      setTimeout(closeModal, 2800);
+    } else {
+      msg.textContent = json.error || 'Something went wrong. Please try again.';
+      msg.className = 'form-msg err';
+    }
+  } catch {
+    msg.textContent = 'Network error. Please try again.';
+    msg.className = 'form-msg err';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Book My Demo Call →';
+  }
+}
 </script>
 </body>
 </html>
