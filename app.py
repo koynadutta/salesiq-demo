@@ -1,10 +1,23 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, make_response
 import resend
 import sqlite3
+import io
 import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 import random
+import traceback
 from datetime import datetime, timedelta
 from functools import wraps
+
+try:
+    import pandas as pd
+    PANDAS_OK = True
+except ImportError:
+    PANDAS_OK = False
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "salesiq-demo-secret-2024-xyz-secure")
@@ -39,14 +52,22 @@ def get_db():
 def init_db():
     conn = get_db()
     c = conn.cursor()
-    c.execute("""CREATE TABLE IF NOT EXISTS sales (
+
+    c.execute("""CREATE TABLE IF NOT EXISTS sales_data (
         id           INTEGER PRIMARY KEY AUTOINCREMENT,
         date         TEXT NOT NULL,
         product_name TEXT NOT NULL,
         units_sold   INTEGER NOT NULL,
         revenue      REAL NOT NULL,
-        customer_id  TEXT NOT NULL
+        customer_id  TEXT NOT NULL,
+        uploaded_at  TEXT NOT NULL
     )""")
+
+    c.execute("""CREATE TABLE IF NOT EXISTS app_state (
+        key   TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+    )""")
+
     c.execute("""CREATE TABLE IF NOT EXISTS upgrade_requests (
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
         name       TEXT NOT NULL,
@@ -55,9 +76,12 @@ def init_db():
         message    TEXT,
         created_at TEXT NOT NULL
     )""")
-    c.execute("SELECT COUNT(*) FROM sales")
+
+    c.execute("SELECT COUNT(*) FROM sales_data")
     if c.fetchone()[0] == 0:
         _seed(c)
+        c.execute("INSERT OR REPLACE INTO app_state (key, value) VALUES ('data_source', 'sample')")
+
     conn.commit()
     conn.close()
 
@@ -66,6 +90,7 @@ def _seed(cursor):
     random.seed(42)
     start = datetime.now() - timedelta(days=90)
     customers = [f"CUST{str(i).zfill(4)}" for i in range(1, 601)]
+    now = datetime.now().isoformat()
 
     for day in range(90):
         dt = start + timedelta(days=day)
@@ -83,9 +108,30 @@ def _seed(cursor):
                 units = random.randint(1, 3)
                 rev = daily_rev / num_tx * random.uniform(0.82, 1.18)
                 cursor.execute(
-                    "INSERT INTO sales (date,product_name,units_sold,revenue,customer_id) VALUES (?,?,?,?,?)",
-                    (date_str, p["name"], units, round(rev, 2), random.choice(customers)),
+                    "INSERT INTO sales_data (date,product_name,units_sold,revenue,customer_id,uploaded_at)"
+                    " VALUES (?,?,?,?,?,?)",
+                    (date_str, p["name"], units, round(rev, 2), random.choice(customers), now),
                 )
+
+
+def get_data_source():
+    try:
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("SELECT value FROM app_state WHERE key='data_source'")
+        row = c.fetchone()
+        conn.close()
+        return row['value'] if row else 'sample'
+    except Exception:
+        return 'sample'
+
+
+def _date_filter(data_source, days=90):
+    """Return (where_clause, params) for the active data source."""
+    if data_source == 'sample':
+        cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+        return "WHERE date >= ?", (cutoff,)
+    return "", ()
 
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
@@ -133,18 +179,6 @@ def forecast_series(daily_revs, days_ahead):
     return result
 
 
-def _product_daily(product_name):
-    conn = get_db()
-    c = conn.cursor()
-    c.execute(
-        "SELECT date, SUM(revenue) as rev FROM sales WHERE product_name=? GROUP BY date ORDER BY date",
-        (product_name,),
-    )
-    rows = c.fetchall()
-    conn.close()
-    return rows
-
-
 # ── Page routes ───────────────────────────────────────────────────────────────
 
 @app.route("/")
@@ -172,7 +206,8 @@ def logout():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("index.html", page="dashboard")
+    data_source = get_data_source()
+    return render_template("index.html", page="dashboard", data_source=data_source)
 
 
 @app.route("/forecast")
@@ -193,10 +228,97 @@ def ltv():
     return render_template("index.html", page="ltv")
 
 
-@app.route("/upload")
+@app.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload():
-    return render_template("index.html", page="upload")
+    if request.method != "POST":
+        return render_template("index.html", page="upload")
+
+    try:
+        if "file" not in request.files:
+            return jsonify({"success": False, "error": "No file provided"})
+
+        f = request.files["file"]
+        filename = f.filename or ""
+        if not filename.lower().endswith(".csv"):
+            return jsonify({"success": False, "error": "Please upload a CSV file"})
+
+        raw_bytes = f.read()
+        if not raw_bytes:
+            return jsonify({"success": False, "error": "The uploaded file is empty"})
+
+        # Parse CSV — use pandas if available, else fall back to manual parse
+        rows = _parse_csv(raw_bytes)
+        if isinstance(rows, str):
+            return jsonify({"success": False, "error": rows})
+
+        required = {'date', 'product_name', 'units_sold', 'revenue', 'customer_id'}
+        missing = required - set(rows[0].keys()) if rows else required
+        if missing:
+            return jsonify({"success": False,
+                            "error": "CSV must have columns: date, product_name, units_sold, revenue, customer_id"})
+
+        rows = rows[:50]
+        now = datetime.now().isoformat()
+
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("DELETE FROM sales_data")
+
+        ok = 0
+        for row in rows:
+            try:
+                c.execute(
+                    "INSERT INTO sales_data (date,product_name,units_sold,revenue,customer_id,uploaded_at)"
+                    " VALUES (?,?,?,?,?,?)",
+                    (
+                        str(row['date']).strip(),
+                        str(row['product_name']).strip(),
+                        int(float(str(row['units_sold']))),
+                        float(str(row['revenue'])),
+                        str(row['customer_id']).strip(),
+                        now,
+                    ),
+                )
+                ok += 1
+            except Exception:
+                pass
+
+        c.execute("INSERT OR REPLACE INTO app_state (key, value) VALUES ('data_source', 'uploaded')")
+        conn.commit()
+        conn.close()
+
+        return jsonify({"success": True, "rows": ok, "message": f"{ok} rows uploaded successfully"})
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"success": False, "error": f"Server error: {e}"})
+
+
+def _parse_csv(raw_bytes):
+    """Parse CSV bytes → list of dicts. Returns error string on failure."""
+    if PANDAS_OK:
+        try:
+            df = pd.read_csv(io.BytesIO(raw_bytes))
+            return df.to_dict(orient='records')
+        except Exception as e:
+            pass  # fall through to manual parser
+
+    # Manual fallback parser
+    try:
+        text = raw_bytes.decode('utf-8', errors='replace')
+        lines = [l for l in text.splitlines() if l.strip()]
+        if len(lines) < 2:
+            return "File appears empty or has no data rows"
+        header = [h.strip().strip('"').lower() for h in lines[0].split(',')]
+        result = []
+        for line in lines[1:]:
+            parts = [p.strip().strip('"') for p in line.split(',')]
+            if len(parts) >= len(header):
+                result.append(dict(zip(header, parts)))
+        return result
+    except Exception as e:
+        return f"Could not parse CSV: {e}"
 
 
 @app.route("/integrations")
@@ -211,199 +333,201 @@ def upgrade():
     return render_template("index.html", page="upgrade")
 
 
-# ── API endpoints ─────────────────────────────────────────────────────────────
+# ── API endpoints — pure SQL, no pandas ──────────────────────────────────────
 
 @app.route("/api/dashboard")
 @login_required
 def api_dashboard():
-    conn = get_db()
-    c = conn.cursor()
-    cutoff_90 = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+    try:
+        data_source = get_data_source()
+        where, params = _date_filter(data_source, days=90)
 
-    c.execute("SELECT SUM(revenue) FROM sales WHERE date>=?", (cutoff_90,))
-    total_rev = round(c.fetchone()[0] or 0, 2)
+        conn = get_db()
+        c = conn.cursor()
 
-    c.execute(
-        "SELECT product_name, SUM(revenue) as r FROM sales WHERE date>=? GROUP BY product_name ORDER BY r DESC LIMIT 1",
-        (cutoff_90,),
-    )
-    best_row = c.fetchone()
-    best_product = best_row["product_name"] if best_row else "N/A"
+        c.execute(f"SELECT SUM(revenue) FROM sales_data {where}", params)
+        total_rev = round(c.fetchone()[0] or 0, 2)
 
-    c.execute(
-        """SELECT AVG(dr) FROM (
-              SELECT date, SUM(revenue) as dr FROM sales WHERE date>=? GROUP BY date
-           ) t""",
-        (cutoff_90,),
-    )
-    avg_daily = round(c.fetchone()[0] or 0, 2)
+        c.execute(
+            f"SELECT product_name, SUM(revenue) as r FROM sales_data {where}"
+            f" GROUP BY product_name ORDER BY r DESC LIMIT 1", params
+        )
+        best_row = c.fetchone()
+        best_product = best_row["product_name"] if best_row else "N/A"
 
-    c.execute(
-        "SELECT date, SUM(revenue) as rev FROM sales WHERE date>=? GROUP BY date ORDER BY date",
-        (cutoff_90,),
-    )
-    actual_rows = c.fetchall()
-    conn.close()
+        c.execute(
+            f"SELECT AVG(dr) FROM (SELECT date, SUM(revenue) as dr FROM sales_data {where} GROUP BY date) t",
+            params,
+        )
+        avg_daily = round(c.fetchone()[0] or 0, 2)
 
-    labels, actual_vals, forecast_vals = [], [], []
-    for row in actual_rows:
-        labels.append(row["date"])
-        actual_vals.append(round(row["rev"], 2))
-        forecast_vals.append(None)
+        c.execute(
+            f"SELECT date, SUM(revenue) as rev FROM sales_data {where} GROUP BY date ORDER BY date",
+            params,
+        )
+        actual_rows = c.fetchall()
+        conn.close()
 
-    daily_revs = [r["rev"] for r in actual_rows]
-    fcast_7 = forecast_series(daily_revs, 7)
-    last_date = datetime.strptime(actual_rows[-1]["date"], "%Y-%m-%d") if actual_rows else datetime.now()
-    for d, val in enumerate(fcast_7, 1):
-        labels.append((last_date + timedelta(days=d)).strftime("%Y-%m-%d"))
-        actual_vals.append(None)
-        forecast_vals.append(val)
+        labels, actual_vals, forecast_vals = [], [], []
+        for row in actual_rows:
+            labels.append(row["date"])
+            actual_vals.append(round(row["rev"], 2))
+            forecast_vals.append(None)
 
-    predicted_7day = round(sum(fcast_7), 2)
+        fcast_7 = forecast_series([r["rev"] for r in actual_rows], 7)
+        last_date = datetime.strptime(actual_rows[-1]["date"], "%Y-%m-%d") if actual_rows else datetime.now()
+        for d, val in enumerate(fcast_7, 1):
+            labels.append((last_date + timedelta(days=d)).strftime("%Y-%m-%d"))
+            actual_vals.append(None)
+            forecast_vals.append(val)
 
-    return jsonify({
-        "total_rev": total_rev,
-        "predicted_7day": predicted_7day,
-        "best_product": best_product,
-        "avg_daily": avg_daily,
-        "chart": {"labels": labels, "actual": actual_vals, "forecast": forecast_vals},
-    })
+        return jsonify({
+            "total_rev": total_rev,
+            "predicted_7day": round(sum(fcast_7), 2),
+            "best_product": best_product,
+            "avg_daily": avg_daily,
+            "data_source": data_source,
+            "chart": {"labels": labels, "actual": actual_vals, "forecast": forecast_vals},
+        })
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/forecast")
 @login_required
 def api_forecast():
-    conn = get_db()
-    c = conn.cursor()
-    cutoff_30 = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    try:
+        data_source = get_data_source()
+        where_30, params_30 = _date_filter(data_source, days=30)
 
-    results = []
-    for p in PRODUCTS:
-        name = p["name"]
-        c.execute("SELECT SUM(revenue) FROM sales WHERE product_name=? AND date>=?", (name, cutoff_30))
-        last_30 = round(c.fetchone()[0] or 0, 2)
+        conn = get_db()
+        c = conn.cursor()
 
-        rows = _product_daily(name)
-        daily = [r["rev"] for r in rows]
-        fcast_7 = sum(forecast_series(daily, 7))
+        c.execute("SELECT DISTINCT product_name FROM sales_data")
+        products = [r["product_name"] for r in c.fetchall()]
 
-        if len(daily) >= 14:
-            recent7 = sum(daily[-7:]) / 7
-            prev7 = sum(daily[-14:-7]) / 7
-            pct = ((recent7 - prev7) / prev7 * 100) if prev7 else 0
-        else:
-            pct = 0
+        results = []
+        for name in products:
+            if where_30:
+                c.execute(
+                    f"SELECT SUM(revenue) FROM sales_data {where_30} AND product_name=?",
+                    params_30 + (name,),
+                )
+            else:
+                c.execute("SELECT SUM(revenue) FROM sales_data WHERE product_name=?", (name,))
+            last_30 = round(c.fetchone()[0] or 0, 2)
 
-        if pct > 3:
-            trend, trend_cls = "↑ Growing", "trend-up"
-        elif pct < -3:
-            trend, trend_cls = "↓ Declining", "trend-down"
-        else:
-            trend, trend_cls = "→ Stable", "trend-flat"
+            c.execute(
+                "SELECT date, SUM(revenue) as rev FROM sales_data WHERE product_name=?"
+                " GROUP BY date ORDER BY date",
+                (name,),
+            )
+            rows = c.fetchall()
+            daily = [r["rev"] for r in rows]
+            fcast_7 = sum(forecast_series(daily, 7))
 
-        results.append({
-            "product": name,
-            "last_30": last_30,
-            "forecast_7": round(fcast_7, 2),
-            "trend": trend,
-            "trend_cls": trend_cls,
-        })
+            if len(daily) >= 14:
+                recent7 = sum(daily[-7:]) / 7
+                prev7   = sum(daily[-14:-7]) / 7
+                pct = ((recent7 - prev7) / prev7 * 100) if prev7 else 0
+            else:
+                pct = 0
 
-    conn.close()
-    return jsonify({"products": results})
+            if pct > 3:
+                trend, trend_cls = "↑ Growing", "trend-up"
+            elif pct < -3:
+                trend, trend_cls = "↓ Declining", "trend-down"
+            else:
+                trend, trend_cls = "→ Stable", "trend-flat"
+
+            results.append({
+                "product": name,
+                "last_30": last_30,
+                "forecast_7": round(fcast_7, 2),
+                "trend": trend,
+                "trend_cls": trend_cls,
+            })
+
+        conn.close()
+        return jsonify({"products": results})
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/products")
 @login_required
 def api_products():
-    conn = get_db()
-    c = conn.cursor()
-    cutoff = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
-    c.execute(
-        """SELECT product_name,
-                  SUM(units_sold)              as units,
-                  SUM(revenue)                 as revenue,
-                  SUM(revenue)/SUM(units_sold) as avg_order
-           FROM sales WHERE date>=?
-           GROUP BY product_name ORDER BY revenue DESC LIMIT 10""",
-        (cutoff,),
-    )
-    rows = c.fetchall()
-    conn.close()
-    return jsonify({
-        "products": [
-            {
-                "name": r["product_name"],
-                "units": int(r["units"]),
-                "revenue": round(r["revenue"], 2),
-                "avg_order": round(r["avg_order"], 2),
-            }
-            for r in rows
-        ]
-    })
+    try:
+        data_source = get_data_source()
+        where, params = _date_filter(data_source, days=90)
+
+        conn = get_db()
+        c = conn.cursor()
+        c.execute(
+            f"""SELECT product_name,
+                      SUM(units_sold)              as units,
+                      SUM(revenue)                 as revenue,
+                      SUM(revenue)/SUM(units_sold) as avg_order
+               FROM sales_data {where}
+               GROUP BY product_name ORDER BY revenue DESC LIMIT 10""",
+            params,
+        )
+        rows = c.fetchall()
+        conn.close()
+
+        return jsonify({
+            "products": [
+                {
+                    "name": r["product_name"],
+                    "units": int(r["units"]),
+                    "revenue": round(r["revenue"], 2),
+                    "avg_order": round(r["avg_order"], 2),
+                }
+                for r in rows
+            ]
+        })
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/upload", methods=["POST"])
+@app.route("/api/reset", methods=["POST"])
 @login_required
-def api_upload():
-    if "file" not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-    f = request.files["file"]
-    if not f.filename.lower().endswith(".csv"):
-        return jsonify({"error": "Please upload a CSV file"}), 400
-
-    raw = f.read().decode("utf-8", errors="replace")
-    lines = [l for l in raw.strip().splitlines() if l.strip()]
-    if len(lines) < 2:
-        return jsonify({"error": "File appears empty or has no data rows"}), 400
-
-    header = lines[0]
-    data_lines = lines[1:]
-    total_in_file = len(data_lines)
-    was_limited = total_in_file > 50
-    data_lines = data_lines[:50]
-
-    conn = get_db()
-    c = conn.cursor()
-    ok = err = 0
-    for line in data_lines:
-        try:
-            parts = [x.strip().strip('"') for x in line.split(",")]
-            if len(parts) < 5:
-                err += 1
-                continue
-            date_val, prod, units, rev, cust = parts[0], parts[1], int(parts[2]), float(parts[3]), parts[4]
-            c.execute(
-                "INSERT INTO sales (date,product_name,units_sold,revenue,customer_id) VALUES (?,?,?,?,?)",
-                (date_val, prod, units, rev, cust),
-            )
-            ok += 1
-        except Exception:
-            err += 1
-    conn.commit()
-    conn.close()
-
-    return jsonify({
-        "ok": True,
-        "processed": ok,
-        "errors": err,
-        "total_in_file": total_in_file,
-        "was_limited": was_limited,
-    })
+def api_reset():
+    try:
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("DELETE FROM sales_data")
+        _seed(c)
+        c.execute("INSERT OR REPLACE INTO app_state (key, value) VALUES ('data_source', 'sample')")
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)})
 
 
 @app.route("/api/download-template")
 @login_required
 def download_template():
-    csv_lines = [
-        "date,product_name,units_sold,revenue,customer_id",
-        "2024-03-01,Running Shoes,3,299.97,CUST0001",
-        "2024-03-01,Yoga Mat,1,49.99,CUST0002",
-        "2024-03-02,Protein Powder,2,89.98,CUST0003",
-        "2024-03-02,Water Bottle,4,79.96,CUST0004",
-        "2024-03-03,Sports Headphones,1,149.99,CUST0005",
+    today = datetime.now()
+    rows = [
+        ((today - timedelta(days=5)).strftime("%Y-%m-%d"), "Running Shoes",     3, 299.97, "CUST0001"),
+        ((today - timedelta(days=5)).strftime("%Y-%m-%d"), "Yoga Mat",          1,  49.99, "CUST0002"),
+        ((today - timedelta(days=4)).strftime("%Y-%m-%d"), "Protein Powder",    2,  89.98, "CUST0003"),
+        ((today - timedelta(days=4)).strftime("%Y-%m-%d"), "Water Bottle",      4,  79.96, "CUST0004"),
+        ((today - timedelta(days=3)).strftime("%Y-%m-%d"), "Sports Headphones", 1, 149.99, "CUST0005"),
     ]
-    resp = make_response("\n".join(csv_lines))
+    lines = ["date,product_name,units_sold,revenue,customer_id"] + [
+        f"{r[0]},{r[1]},{r[2]},{r[3]},{r[4]}" for r in rows
+    ]
+    resp = make_response("\n".join(lines))
     resp.headers["Content-Type"] = "text/csv"
     resp.headers["Content-Disposition"] = "attachment; filename=salesiq_template.csv"
     return resp
@@ -419,7 +543,6 @@ def contact():
     if not name or not email:
         return jsonify({'success': False, 'error': 'Please fill in all required fields.'})
 
-    # Always persist the lead to the database
     conn = get_db()
     conn.execute(
         "INSERT INTO upgrade_requests (name,email,company,message,created_at) VALUES (?,?,?,?,?)",

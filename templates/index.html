@@ -679,6 +679,16 @@ textarea.form-input { resize: vertical; min-height: 100px; }
 
         <!-- ── DASHBOARD ── -->
         <div id="page-dashboard" class="page">
+          <div id="data-source-banner" style="margin-bottom:16px;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;
+            {% if data_source is defined and data_source == 'uploaded' %}
+              background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);color:#4ade80;
+            {% else %}
+              background:rgba(99,102,241,0.07);border:1px solid rgba(99,102,241,0.2);color:#818cf8;
+            {% endif %}
+          ">
+            <span id="banner-icon">{% if data_source is defined and data_source == 'uploaded' %}✓{% else %}ℹ️{% endif %}</span>
+            <span id="banner-text">{% if data_source is defined and data_source == 'uploaded' %}Showing your uploaded data (50 rows){% else %}Showing sample data — upload your CSV to see your store's real performance{% endif %}</span>
+          </div>
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-label">Total Revenue</div>
@@ -852,9 +862,13 @@ textarea.form-input { resize: vertical; min-height: 100px; }
               <div class="upload-icon">📂</div>
               <div class="upload-title">Drag &amp; drop your CSV here</div>
               <div class="upload-subtitle">or click to browse files · Max 50 rows in free demo</div>
-              <button class="upload-btn" onclick="document.getElementById('file-input').click()">Browse Files</button>
+              <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('file-input').click()">Browse Files</button>
             </div>
             <div id="upload-result" class="upload-result"></div>
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+              <span style="font-size:12px;color:var(--text-secondary);">Already using uploaded data?</span>
+              <button class="btn-outline" id="reset-btn" onclick="resetToSample()">↺ Reset to Sample Data</button>
+            </div>
             <div style="margin-top:24px;">
               <div style="font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Expected CSV Format</div>
               <div class="code-block">
@@ -1116,13 +1130,39 @@ function trendTag(trend_cls, trend) {
 ═══════════════════════════════════════ */
 function loadDashboard() {
   fetch('/api/dashboard')
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error('Server error ' + r.status);
+      return r.json();
+    })
     .then(d => {
+      if (d.error) throw new Error(d.error);
       document.getElementById('stat-total').textContent     = fmt$(d.total_rev);
       document.getElementById('stat-predicted').textContent = fmt$(d.predicted_7day);
       document.getElementById('stat-best').textContent      = d.best_product;
       document.getElementById('stat-avg').textContent       = fmt$(d.avg_daily);
       renderDashChart(d.chart);
+
+      const banner   = document.getElementById('data-source-banner');
+      const bannerTx = document.getElementById('banner-text');
+      const bannerIc = document.getElementById('banner-icon');
+      if (banner && bannerTx) {
+        if (d.data_source === 'uploaded') {
+          banner.style.cssText = 'margin-bottom:16px;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);color:#4ade80;';
+          bannerIc.textContent = '✓';
+          bannerTx.textContent = 'Showing your uploaded data (50 rows)';
+        } else {
+          banner.style.cssText = 'margin-bottom:16px;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;background:rgba(99,102,241,0.07);border:1px solid rgba(99,102,241,0.2);color:#818cf8;';
+          bannerIc.textContent = 'ℹ️';
+          bannerTx.textContent = 'Showing sample data — upload your CSV to see your store\'s real performance';
+        }
+      }
+    })
+    .catch(err => {
+      console.error('Dashboard load error:', err);
+      document.getElementById('stat-total').textContent     = 'Error';
+      document.getElementById('stat-predicted').textContent = 'Error';
+      document.getElementById('stat-best').textContent      = 'Error';
+      document.getElementById('stat-avg').textContent       = 'Error';
     });
 }
 
@@ -1308,48 +1348,86 @@ function initUpload() {
   const zone      = document.getElementById('upload-zone');
   const fileInput = document.getElementById('file-input');
 
-  zone.addEventListener('click', () => fileInput.click());
   zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
   zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
   zone.addEventListener('drop', e => {
     e.preventDefault(); zone.classList.remove('drag-over');
-    if (e.dataTransfer.files[0]) processUpload(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files[0]) handleUpload(e.dataTransfer.files[0]);
   });
   fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) processUpload(fileInput.files[0]);
+    if (fileInput.files[0]) handleUpload(fileInput.files[0]);
   });
 }
 
-function processUpload(file) {
-  const resultEl = document.getElementById('upload-result');
-  resultEl.className = 'upload-result';
-  resultEl.style.display = 'block';
-  resultEl.innerHTML = '<div class="loading-state" style="padding:16px 0;"><span class="spinner"></span> Uploading and processing…</div>';
+function showUploadLoading(msg) {
+  const el = document.getElementById('upload-result');
+  el.className = 'upload-result';
+  el.style.display = 'block';
+  el.innerHTML = `<div class="loading-state" style="padding:16px 0;"><span class="spinner"></span> ${esc(msg)}</div>`;
+}
 
-  const fd = new FormData();
-  fd.append('file', file);
+function showUploadSuccess(msg) {
+  const el = document.getElementById('upload-result');
+  el.className = 'upload-result';
+  el.style.display = 'block';
+  el.innerHTML = `<h4>✅ Success</h4><p>${esc(msg)}</p>`;
+}
 
-  fetch('/api/upload', { method: 'POST', body: fd })
-    .then(r => r.json())
-    .then(d => {
-      if (d.error) {
-        resultEl.className = 'upload-result error';
-        resultEl.innerHTML = `<h4>❌ Upload Failed</h4><p>${esc(d.error)}</p>`;
-        return;
-      }
-      let html = `<h4>✅ Processing Complete</h4><p>Rows processed: <strong>${d.processed}</strong></p>`;
-      if (d.errors > 0) html += `<p>Rows skipped (format errors): ${d.errors}</p>`;
-      if (d.was_limited) {
-        html += `<p style="color:#fbbf24;margin-top:10px;">⚠️ Your file had <strong>${d.total_in_file}</strong> rows — only the first 50 were processed. <a onclick="navigate('upgrade')" style="color:#a78bfa;text-decoration:underline;cursor:pointer;">Upgrade to Pro</a> for unlimited data processing.</p>`;
-      } else {
-        html += `<p style="color:var(--text-secondary);font-size:12px;margin-top:8px;">Analyzed ${d.processed} rows (limited to 50 in free demo). <a onclick="navigate('upgrade')" style="color:#a78bfa;text-decoration:underline;cursor:pointer;">Upgrade to Pro</a> for unlimited data processing.</p>`;
-      }
-      resultEl.innerHTML = html;
-    })
-    .catch(() => {
-      resultEl.className = 'upload-result error';
-      resultEl.innerHTML = '<h4>❌ Error</h4><p>Network error. Please try again.</p>';
+function showUploadError(msg) {
+  const el = document.getElementById('upload-result');
+  el.className = 'upload-result error';
+  el.style.display = 'block';
+  el.innerHTML = `<h4>❌ Upload Failed</h4><p>${esc(msg)}</p>`;
+}
+
+async function handleUpload(file) {
+  showUploadLoading('Uploading and analyzing your data...');
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch('/upload', {
+      method: 'POST',
+      body: formData,
     });
+
+    let result;
+    try {
+      result = await response.json();
+    } catch (_) {
+      showUploadError('Server returned a non-JSON response (HTTP ' + response.status + '). Check your terminal for the Python error.');
+      return;
+    }
+
+    if (result.success) {
+      showUploadSuccess('✓ ' + result.rows + ' rows uploaded successfully. Redirecting to dashboard...');
+      setTimeout(() => { window.location.href = '/dashboard'; }, 1500);
+    } else {
+      showUploadError(result.error || 'Upload failed. Please try again.');
+    }
+  } catch (error) {
+    showUploadError('Network error: ' + error.message);
+  }
+}
+
+async function resetToSample() {
+  const btn = document.getElementById('reset-btn');
+  btn.textContent = 'Resetting…';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/reset', { method: 'POST' });
+    const d = await r.json();
+    if (d.success) {
+      window.location.href = '/dashboard';
+    } else {
+      btn.textContent = '↺ Reset to Sample Data';
+      btn.disabled = false;
+    }
+  } catch {
+    btn.textContent = '↺ Reset to Sample Data';
+    btn.disabled = false;
+  }
 }
 
 function downloadTemplate() {
