@@ -19,7 +19,7 @@ try:
 except ImportError:
     PANDAS_OK = False
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.secret_key = os.environ.get("SECRET_KEY", "salesiq-demo-secret-2024-xyz-secure")
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
