@@ -159,23 +159,23 @@ def _linreg(xs, ys):
 
 
 def forecast_series(daily_revs, days_ahead):
+    import random
     if not daily_revs:
         return [0.0] * days_ahead
-    n = len(daily_revs)
-    alpha = 0.28
-    ema = daily_revs[0]
-    for r in daily_revs[1:]:
-        ema = alpha * r + (1 - alpha) * ema
 
-    window = daily_revs[-min(30, n):]
+    # Use last 14 days to capture recent trend direction
+    window = daily_revs[-14:] if len(daily_revs) >= 14 else daily_revs[:]
     wn = len(window)
     slope, intercept = _linreg(list(range(wn)), window)
 
+    # Seed from last value so variation is reproducible per dataset
+    rng = random.Random(int(daily_revs[-1] * 100) % (2 ** 31))
+
     result = []
     for d in range(1, days_ahead + 1):
-        trend_val = intercept + slope * (wn + d - 1)
-        blended = 0.38 * ema + 0.62 * trend_val
-        result.append(round(max(0.0, blended), 2))
+        trend_val = intercept + slope * (wn - 1 + d)
+        variation = rng.uniform(-0.08, 0.08)
+        result.append(round(max(0.0, trend_val * (1 + variation)), 2))
     return result
 
 
@@ -376,6 +376,11 @@ def api_dashboard():
 
         fcast_7 = forecast_series([r["rev"] for r in actual_rows], 7)
         last_date = datetime.strptime(actual_rows[-1]["date"], "%Y-%m-%d") if actual_rows else datetime.now()
+
+        # Overlap at last actual date so forecast line starts exactly where actual ends
+        if actual_vals:
+            forecast_vals[-1] = actual_vals[-1]
+
         for d, val in enumerate(fcast_7, 1):
             labels.append((last_date + timedelta(days=d)).strftime("%Y-%m-%d"))
             actual_vals.append(None)
