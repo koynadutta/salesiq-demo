@@ -81,37 +81,70 @@ def init_db():
     if c.fetchone()[0] == 0:
         _seed(c)
         c.execute("INSERT OR REPLACE INTO app_state (key, value) VALUES ('data_source', 'sample')")
+        print(f"[init_db] Seeded sample data into fresh database.")
 
     conn.commit()
     conn.close()
 
 
 def _seed(cursor):
-    random.seed(42)
-    start = datetime.now() - timedelta(days=90)
-    customers = [f"CUST{str(i).zfill(4)}" for i in range(1, 601)]
     now = datetime.now().isoformat()
-
-    for day in range(90):
-        dt = start + timedelta(days=day)
-        date_str = dt.strftime("%Y-%m-%d")
-        weekend = dt.weekday() >= 5
-
-        for p in PRODUCTS:
-            trend_mul = 1 + (p["trend"] / 100 * day)
-            noise = 1 + random.gauss(0, p["vol"])
-            wk_mul = 0.78 if weekend else 1.0
-            daily_rev = max(10.0, p["base"] * trend_mul * noise * wk_mul)
-
-            num_tx = random.randint(2, 6)
-            for _ in range(num_tx):
-                units = random.randint(1, 3)
-                rev = daily_rev / num_tx * random.uniform(0.82, 1.18)
-                cursor.execute(
-                    "INSERT INTO sales_data (date,product_name,units_sold,revenue,customer_id,uploaded_at)"
-                    " VALUES (?,?,?,?,?,?)",
-                    (date_str, p["name"], units, round(rev, 2), random.choice(customers), now),
-                )
+    rows = [
+        ("2024-03-01","Running Shoes",5,499.95,"CUST0019"),
+        ("2024-03-02","Foam Roller",1,34.99,"CUST0020"),
+        ("2024-03-02","Yoga Mat",3,149.97,"CUST0043"),
+        ("2024-03-04","Gym Gloves",3,47.97,"CUST0018"),
+        ("2024-03-04","Protein Powder",1,44.99,"CUST0034"),
+        ("2024-03-05","Resistance Bands",5,99.95,"CUST0036"),
+        ("2024-03-05","Resistance Bands",2,39.98,"CUST0044"),
+        ("2024-03-08","Gym Gloves",3,47.97,"CUST0031"),
+        ("2024-03-09","Foam Roller",2,69.98,"CUST0006"),
+        ("2024-03-09","Running Shoes",1,99.99,"CUST0024"),
+        ("2024-03-11","Foam Roller",2,69.98,"CUST0002"),
+        ("2024-03-11","Protein Powder",2,89.98,"CUST0026"),
+        ("2024-03-13","Water Bottle",3,74.97,"CUST0009"),
+        ("2024-03-13","Gym Gloves",1,15.99,"CUST0016"),
+        ("2024-03-15","Protein Powder",4,179.96,"CUST0046"),
+        ("2024-03-15","Sports Headphones",2,159.98,"CUST0048"),
+        ("2024-03-16","Gym Gloves",1,15.99,"CUST0041"),
+        ("2024-03-17","Gym Gloves",4,63.96,"CUST0010"),
+        ("2024-03-17","Gym Gloves",5,79.95,"CUST0021"),
+        ("2024-03-18","Foam Roller",1,34.99,"CUST0004"),
+        ("2024-03-18","Water Bottle",4,99.96,"CUST0027"),
+        ("2024-03-20","Foam Roller",5,174.95,"CUST0001"),
+        ("2024-03-20","Water Bottle",3,74.97,"CUST0017"),
+        ("2024-03-24","Resistance Bands",1,19.99,"CUST0032"),
+        ("2024-03-27","Yoga Mat",4,199.96,"CUST0011"),
+        ("2024-03-27","Foam Roller",5,174.95,"CUST0014"),
+        ("2024-03-27","Resistance Bands",1,19.99,"CUST0015"),
+        ("2024-03-31","Sports Headphones",3,239.97,"CUST0003"),
+        ("2024-03-31","Water Bottle",1,24.99,"CUST0037"),
+        ("2024-04-02","Foam Roller",2,69.98,"CUST0008"),
+        ("2024-04-02","Running Shoes",5,499.95,"CUST0039"),
+        ("2024-04-03","Sports Headphones",1,79.99,"CUST0029"),
+        ("2024-04-05","Running Shoes",4,399.96,"CUST0040"),
+        ("2024-04-08","Resistance Bands",1,19.99,"CUST0047"),
+        ("2024-04-09","Water Bottle",2,49.98,"CUST0025"),
+        ("2024-04-09","Gym Gloves",5,79.95,"CUST0028"),
+        ("2024-04-11","Protein Powder",2,89.98,"CUST0022"),
+        ("2024-04-12","Water Bottle",5,124.95,"CUST0033"),
+        ("2024-04-13","Gym Gloves",4,63.96,"CUST0045"),
+        ("2024-04-14","Sports Headphones",1,79.99,"CUST0023"),
+        ("2024-04-14","Protein Powder",4,179.96,"CUST0042"),
+        ("2024-04-16","Gym Gloves",5,79.95,"CUST0038"),
+        ("2024-04-17","Protein Powder",2,89.98,"CUST0035"),
+        ("2024-04-19","Protein Powder",2,89.98,"CUST0005"),
+        ("2024-04-19","Foam Roller",1,34.99,"CUST0013"),
+        ("2024-04-21","Resistance Bands",3,59.97,"CUST0012"),
+        ("2024-04-24","Protein Powder",4,179.96,"CUST0030"),
+        ("2024-04-26","Foam Roller",3,104.97,"CUST0007"),
+    ]
+    for r in rows:
+        cursor.execute(
+            "INSERT INTO sales_data (date,product_name,units_sold,revenue,customer_id,uploaded_at)"
+            " VALUES (?,?,?,?,?,?)",
+            (r[0], r[1], r[2], r[3], r[4], now),
+        )
 
 
 def get_data_source():
@@ -127,10 +160,6 @@ def get_data_source():
 
 
 def _date_filter(data_source, days=90):
-    """Return (where_clause, params) for the active data source."""
-    if data_source == 'sample':
-        cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
-        return "WHERE date >= ?", (cutoff,)
     return "", ()
 
 
@@ -146,36 +175,25 @@ def login_required(f):
 
 # ── Forecasting helpers ───────────────────────────────────────────────────────
 
-def _linreg(xs, ys):
-    n = len(xs)
-    if n < 2:
-        return 0.0, ys[0] if ys else 0.0
-    xm = sum(xs) / n
-    ym = sum(ys) / n
-    num = sum((xs[i] - xm) * (ys[i] - ym) for i in range(n))
-    den = sum((xi - xm) ** 2 for xi in xs)
-    slope = num / den if den else 0.0
-    return slope, ym - slope * xm
-
-
 def forecast_series(daily_revs, days_ahead):
-    import random
+    import math
     if not daily_revs:
         return [0.0] * days_ahead
 
-    # Use last 14 days to capture recent trend direction
-    window = daily_revs[-14:] if len(daily_revs) >= 14 else daily_revs[:]
-    wn = len(window)
-    slope, intercept = _linreg(list(range(wn)), window)
+    avg = sum(daily_revs) / len(daily_revs)
+    variance = sum((x - avg) ** 2 for x in daily_revs) / len(daily_revs)
+    std = math.sqrt(variance)
 
-    # Seed from last value so variation is reproducible per dataset
+    floor_val = 0.50 * avg
+    ceil_val  = 1.80 * avg
+
     rng = random.Random(int(daily_revs[-1] * 100) % (2 ** 31))
 
     result = []
-    for d in range(1, days_ahead + 1):
-        trend_val = intercept + slope * (wn - 1 + d)
-        variation = rng.uniform(-0.08, 0.08)
-        result.append(round(max(0.0, trend_val * (1 + variation)), 2))
+    for _ in range(days_ahead):
+        val = avg + rng.uniform(-0.4, 0.4) * std
+        val = max(floor_val, min(ceil_val, val))
+        result.append(round(val, 2))
     return result
 
 
@@ -258,7 +276,6 @@ def upload():
             return jsonify({"success": False,
                             "error": "CSV must have columns: date, product_name, units_sold, revenue, customer_id"})
 
-        rows = rows[:50]
         now = datetime.now().isoformat()
 
         conn = get_db()
@@ -659,7 +676,8 @@ def admin_requests():
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 
+init_db()  # runs on every startup, whether via 'python app.py' or a WSGI server
+
 if __name__ == "__main__":
-    init_db()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)

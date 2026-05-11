@@ -30,7 +30,13 @@
       "PowerShell($env:RESEND_API_KEY = \"re_K1YFiMY8_EZcNa9R6iemFNdwki5GTG9Ws\"; cd \"C:\\\\Users\\\\KIIT0001\\\\Desktop\\\\salesiq-demo\"; Start-Process python -ArgumentList \"app.py\" -NoNewWindow -PassThru | Select-Object Id)",
       "PowerShell(Start-Sleep -Seconds 3; \\(Invoke-WebRequest -Uri \"http://127.0.0.1:5000/\" -UseBasicParsing\\).StatusCode)",
       "PowerShell($env:RESEND_API_KEY = \"re_K1YFiMY8_EZcNa9R6iemFNdwki5GTG9Ws\"; Set-Location \"C:\\\\Users\\\\KIIT0001\\\\Desktop\\\\salesiq-demo\"; $proc = Start-Process python -ArgumentList \"app.py\" -NoNewWindow -PassThru; Start-Sleep -Seconds 3; try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:5000/\" -UseBasicParsing; Write-Host \"Running — HTTP $\\($r.StatusCode\\)\" } catch { Write-Host \"Not responding yet\" })",
-      "PowerShell(netstat *)"
+      "PowerShell(netstat *)",
+      "Bash(exist \"C:\\\\Users\\\\KIIT0001\\\\Desktop\\\\salesiq-demo\\\\salesiq.db\" del \"C:\\\\Users\\\\KIIT0001\\\\Desktop\\\\salesiq-demo\\\\salesiq.db\")",
+      "PowerShell(Remove-Item *)",
+      "Bash(timeout 4)",
+      "Bash(Start-Sleep -Seconds 3)",
+      "Bash(Get-Content \"C:\\\\Users\\\\KIIT0001\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-KIIT0001-Desktop-salesiq-demo\\\\75ec126b-5f0b-45c0-a54b-cff49d075c85\\\\tasks\\\\bfyt2qfms.output\")",
+      "PowerShell(Get-Process *)"
     ]
   }
 }

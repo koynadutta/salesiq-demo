@@ -159,15 +159,15 @@ textarea.form-input { resize: vertical; min-height: 100px; }
 .sidebar.collapsed .logo-text,
 .sidebar.collapsed .user-details { opacity: 0; pointer-events: none; width: 0; overflow: hidden; }
 .sidebar.collapsed .sidebar-logo { display: none; }
-.sidebar.collapsed .sidebar-header { justify-content: center; }
 .sidebar.collapsed .user-info { justify-content: center; }
 .sidebar.collapsed .upgrade-btn span:last-child { display: none; }
 
 .sidebar-header {
-  padding: 20px 16px; display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 16px; display: flex; align-items: center;
   border-bottom: 1px solid var(--border); min-height: 72px;
+  position: relative;
 }
-.sidebar-logo { display: flex; align-items: center; gap: 12px; }
+.sidebar-logo { display: flex; align-items: center; gap: 12px; overflow: hidden; max-width: calc(100% - 50px); }
 .logo-icon {
   width: 36px; height: 36px; background: var(--gradient); border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
@@ -180,7 +180,8 @@ textarea.form-input { resize: vertical; min-height: 100px; }
   background: var(--bg-card); border: 1px solid var(--border);
   color: var(--text-secondary); width: 30px; height: 30px; border-radius: 8px;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: all 0.2s;
+  transition: all 0.2s;
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
 }
 .sidebar-toggle:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--border-hover); }
 
@@ -689,7 +690,7 @@ textarea.form-input { resize: vertical; min-height: 100px; }
             {% endif %}
           ">
             <span id="banner-icon">{% if data_source is defined and data_source == 'uploaded' %}✓{% else %}ℹ️{% endif %}</span>
-            <span id="banner-text">{% if data_source is defined and data_source == 'uploaded' %}Showing your uploaded data (50 rows){% else %}Showing sample data — upload your CSV to see your store's real performance{% endif %}</span>
+            <span id="banner-text">{% if data_source is defined and data_source == 'uploaded' %}Showing your uploaded data{% else %}Showing sample data — upload your CSV to see your store's real performance{% endif %}</span>
           </div>
           <div class="stats-grid">
             <div class="stat-card">
@@ -735,7 +736,7 @@ textarea.form-input { resize: vertical; min-height: 100px; }
                 Actual Sales
               </div>
               <div class="chart-legend-item">
-                <span class="legend-line" style="background:#ec4899;"></span>
+                <span class="legend-line" style="background:#f472b6;"></span>
                 7-Day Forecast
               </div>
             </div>
@@ -1151,7 +1152,7 @@ function loadDashboard() {
         if (d.data_source === 'uploaded') {
           banner.style.cssText = 'margin-bottom:16px;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);color:#4ade80;';
           bannerIc.textContent = '✓';
-          bannerTx.textContent = 'Showing your uploaded data (50 rows)';
+          bannerTx.textContent = 'Showing your uploaded data';
         } else {
           banner.style.cssText = 'margin-bottom:16px;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;background:rgba(99,102,241,0.07);border:1px solid rgba(99,102,241,0.2);color:#818cf8;';
           bannerIc.textContent = 'ℹ️';
@@ -1172,9 +1173,16 @@ function renderDashChart(chart) {
   const ctx = document.getElementById('dash-chart').getContext('2d');
   if (dashChart) { dashChart.destroy(); dashChart = null; }
 
-  const labels   = chart.labels;
-  const actual   = chart.actual;
-  const forecast = chart.forecast;
+  const allLabels   = chart.labels;
+  const allActual   = chart.actual;
+  const allForecast = chart.forecast;
+
+  // Slice to last 21 actual days + 7 forecast days = 28 visible points
+  const numActual = allActual.filter(v => v !== null).length;
+  const startIdx  = Math.max(0, numActual - 21);
+  const labels    = allLabels.slice(startIdx);
+  const actual    = allActual.slice(startIdx);
+  const forecast  = allForecast.slice(startIdx);
 
   const shortLabels = labels.map((l, i) => {
     const d = new Date(l + 'T00:00:00');
@@ -1204,11 +1212,11 @@ function renderDashChart(chart) {
         {
           label: '7-Day Forecast',
           data: forecast,
-          borderColor: '#ec4899',
-          backgroundColor: 'rgba(236,72,153,0.06)',
-          borderWidth: 2,
-          borderDash: [6, 4],
-          pointRadius: 0, pointHoverRadius: 4,
+          borderColor: '#f472b6',
+          backgroundColor: 'rgba(244,114,182,0.06)',
+          borderWidth: 2.5,
+          borderDash: [8, 4],
+          pointRadius: 3, pointHoverRadius: 5,
           fill: true, tension: 0.4, spanGaps: false,
         },
       ],
