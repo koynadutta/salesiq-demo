@@ -925,9 +925,9 @@ textarea.form-input { resize: vertical; min-height: 100px; }
         <div id="page-upgrade" class="page">
           <div class="upgrade-hero">
             <div class="upgrade-hero-glow"></div>
-            <span class="upgrade-label">⚡ BETA FOUNDER</span>
-            <h1 class="upgrade-title">Pro — <span class="gradient-text">Beta Pricing</span></h1>
-            <p class="upgrade-subtitle">5 founder spots only. Lock in the lowest price SalesIQ will ever be — before it goes to $1,999/month.</p>
+            <span class="upgrade-label">⚡ PRO PLAN</span>
+            <h1 class="upgrade-title">Pro — <span class="gradient-text">$299/month</span></h1>
+            <p class="upgrade-subtitle">Now accepting new stores — 2 spots remaining this month at $299/month.</p>
           </div>
 
           <div class="upgrade-grid">
@@ -944,15 +944,14 @@ textarea.form-input { resize: vertical; min-height: 100px; }
               <div class="price-block">
                 <span class="price-amount">$299</span><span class="price-period">/month</span>
                 <p class="price-note">Cancel anytime · No contracts</p>
-                <p class="price-old">Increases to $1,999/month after beta</p>
               </div>
               <div class="urgency-box">
-                ⚡ Only 5 founder spots available at this price. Once they're gone, the rate goes to $1,999/month permanently.
+                ⚡ Now accepting new stores — 2 spots remaining this month at $299/month.
               </div>
             </div>
 
             <div class="contact-card">
-              <h3>Claim Your Founder Spot</h3>
+              <h3>Get Started with Pro</h3>
               <p>We'll walk you through SalesIQ live with your store data — 20 minutes, no pressure.</p>
               <div id="upgrade-form-body">
                 <form id="contact-form">
@@ -973,7 +972,7 @@ textarea.form-input { resize: vertical; min-height: 100px; }
                     <textarea id="uf-message" name="message" class="form-input" rows="3" placeholder="Tell us about your store size, current tools, or any questions…"></textarea>
                   </div>
                   <div id="upgrade-form-error" class="upgrade-form-error"></div>
-                  <button class="form-submit" id="upgrade-submit-btn" type="submit">Claim Founder Spot — $299/mo →</button>
+                  <button class="form-submit" id="upgrade-submit-btn" type="submit">Get Started — $299/mo →</button>
                   <div id="form-message" style="margin-top:14px;font-size:13.5px;font-weight:600;"></div>
                 </form>
               </div>
@@ -1468,7 +1467,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           msgEl.innerHTML   = 'Something went wrong: ' + esc(result.error || 'Please try again.');
           msgEl.style.color = '#f87171';
-          btn.textContent   = 'Claim Founder Spot — $299/mo →';
+          btn.textContent   = 'Get Started — $299/mo →';
           btn.disabled      = false;
         }
       } catch (err) {
