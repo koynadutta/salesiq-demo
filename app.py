@@ -199,6 +199,21 @@ def forecast_series(daily_revs, days_ahead):
 
 # ── Page routes ───────────────────────────────────────────────────────────────
 
+@app.route("/sitemap.xml")
+def sitemap():
+    pages = ["/", "/pricing", "/features", "/faq"]
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    for page in pages:
+        xml += f"  <url>\n"
+        xml += f"    <loc>https://trysalesiq.com{page}</loc>\n"
+        xml += f"    <lastmod>2026-05-16</lastmod>\n"
+        xml += f"    <changefreq>monthly</changefreq>\n"
+        xml += f"  </url>\n"
+    xml += "</urlset>"
+    return xml, 200, {"Content-Type": "application/xml"}
+
+
 @app.route("/")
 def index():
     return render_template("landing.html")
